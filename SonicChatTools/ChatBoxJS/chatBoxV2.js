@@ -20,9 +20,9 @@ var nowTyping = false; // toggled every 3seconds to allow a message to be sent t
 var itemDisplay = true; // toggled if selectable items are displayed
 
 var chatBoxHtml =  "<style>" +
-".blue {color: #d9eef7; background: #2A83FF;} " +
-".blue:hover {background: #5ba0ff;}" +
-".blue:active {color: #80bed6;background: -webkit-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));background: -moz-linear-gradient(top,  #0078a5,  #00adee);filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0078a5', endColorstr='#00adee');}" +
+".blue {color: #FFFFFF; background: #63B8FD;} " +
+".blue:hover {background: #94CEFE;}" +
+".blue:active {background: #70bcf9; }" +
 ".button:hover {text-decoration: none;}" +
 ".button:active {position: relative;top: 1px;}" +
 ".medium {font-size: 12px;margin:auto;display:block;outline: none;cursor: pointer;text-align: center;text-decoration: none;font: 14px/100% Arial, Helvetica, sans-serif;padding: .4em 1.5em .42em;text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2); box-shadow: 0 1px 2px rgba(0,0,0,.2);} " +
@@ -34,7 +34,7 @@ var chatBoxHtml =  "<style>" +
 "#chatMessage::-webkit-input-placeholder{color:#999!important;}" +
 "#messageInput::-webkit-input-placeholder{color:#999!important;}" +
 "</style>" +
-	"<div id = 'chatContainer' style = '  width: 290px; z-index: 100!important; border-top-left-radius:.4em!important; border-top-right-radius:.4em!important; padding-bottom:0px!important; margin: 0px 0px 0px 0px!important; position: fixed!important; bottom: 0px!important; right: 20px!important; background-color: #EAEAEA!important; box-shadow:0 .10em .5em rgba(0,0,0,.35)!important;'>" +
+	"<div id = 'chatContainer' style = 'width: 290px; z-index: 100!important; border-top-left-radius:.4em!important; border-top-right-radius:.4em!important; padding-bottom:0px!important; margin: 0px 0px 0px 0px!important; position: fixed!important; bottom: 0px!important; right: 20px!important; background-color: #EAEAEA!important; box-shadow:0 .10em .5em rgba(0,0,0,.35)!important;'>" +
 		"<div  id = 'chatTop' class = 'chatTop' onClick = 'openChatBox()'>" +
 		"<p id = 'chatTopMessage' style = 'display: block!important; cursor:default!important;  -moz-user-select: none;-khtml-user-select: none;-webkit-user-select: none;-ms-user-select: none; user-select: none; letter-spacing: .04em!important;  line-height: 100%!important; border: 0px!important; font-size: 15px!important; color: #ffffff!important; width: 100%!important; font-family: Arial, Helvetica, sans-serif;important;  margin: 0px!important; text-align: top!important; padding-left: 11px!important; font-weight: 400!important; padding-top: 10px!important;'><span style = 'color: #64C7E7!important; font-weight: 600!important;  '></span>  <img  id = 'chatArrow' class = 'arrowImg'  src = 'http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png'></p> " +
 		"</div>" + 
@@ -91,7 +91,7 @@ function openChatBox() {
 	}	
 }
 
-// ****** Following methods connect and interact with the server for WS ops******
+// =============================== Following methods connect and interact with the server for WS ops ===============================
 function connectToHost() {	
 	// Connect to the socket server
 	webSocket = $.gracefulWebSocket(serverAddress + ":" + port);
@@ -247,7 +247,7 @@ function appendMessageOut(message) {
 	$('#chatBox').scrollTop($('#chatBox').prop("scrollHeight"));
 }
 
-// ****** Following methods change and add display elements to the chat box******
+// =============================== Following methods change and add display elements to the chat box ===============================
 function displayNowTyping(show){
 	if (show && dotTimer == null) {
 		$('#chatBox').append('<p id = "typingP" style = "font-family: Arial, Helvetica, sans-serif;important; font-weight: 600!important;  margin: 3px 3px 6px 5px!important; color: #949494!important; font-size: 14px!important; line-height: 100%!important;"> </p>');	
@@ -297,7 +297,7 @@ function displayBanner(message, messageSmall, color, size) {
 }
 
 function changeChatTopMessage(message, messageTwo, backVis, navUp) {
-$('#chatTopMessage').html('<span style = "color: #64C7E7!important; font-weight: 600!important; ">' + message + '</span> </b> <span style = "color: #E9E9E9!important; font-weight: 600!important; ">' + messageTwo + '</span>  <img  id = "chatArrow"  class = "arrowImg"  src = "http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png"> <span id = "backimg" style = "color: #c1c1c1!important; display: none; margin: 0px!important; padding: 0px!important; padding-right: 15px!important; float: right; font-size: 18px;" class="icon fa-hand-o-left"></span>');
+$('#chatTopMessage').html('<span style = "color: #63B8FD!important; font-weight: 600!important; ">' + message + '</span> </b> <span style = "color: #E9E9E9!important; font-weight: 600!important; ">' + messageTwo + '</span>  <img  id = "chatArrow"  class = "arrowImg"  src = "http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png"> <span id = "backimg" style = "color: #c1c1c1!important; display: none; margin: 0px!important; padding: 0px!important; padding-right: 15px!important; float: right; font-size: 18px;" class="icon fa-hand-o-left"></span>');
 	if (backVis) {
 		$("#backimg").css("display", "inline-block");
 	} else if (!backVis){
@@ -317,6 +317,10 @@ $('#chatTopMessage').html('<span style = "color: #64C7E7!important; font-weight:
 
 // Main item selection picker
 function itemSelected(item) {
+	
+	// Unbind any keyup events to avoid double sends
+	$('#messageInput').unbind('keyup');
+	
 	if (item == 1) {
 		// Live chat
 		if (!away) {
@@ -338,35 +342,63 @@ function itemSelected(item) {
 	} else if (item == 4) {
 		window.open("/about.html", "_self");
 	   $("#itemBlock").fadeOut(600);
+	} else if (item == 5) {
+		// Google Map of location
+		displayMap();
+		changeChatTopMessage("Map View", "", true);
+		itemDisplay = false;
+	} else if (item == 6) {
+		// Answerbase 
+		displayAnswerBase();
+		itemDisplay = false;
 	}
 	
 	// Hide item selection block if left visible
 	if($('#itemBlock').length == 0){
 		$("#itemBlock").css("display", "none");
 	}
-	
-	// Unbind any keyup events to avoid double sends
-	$('#messageInput').unbind('keyup');
-	
 }
 
-/* ******** DISPLAY: Append and Display functions below! ********
+/* =============================== DISPLAY: Append and Display functions below! ===============================
 The following functions request data from the server
 and handle the data in a callback */
 
+
+function displayMap(){
+		displayLoading("chatBox", true);
+		var cord = "Downtown cleveland ohio" // coordinates of map location
+		// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var map = "<div  id  = 'mapDiv' style = 'width: 100%!important; height: 100%!important; overflow-y: hidden; overflow-x: hidden;  margin: auto!important;  padding-top: 0px!important;  display: none; '>" + 					
+					"<iframe  id = 'mapFrame' frameborder='0' style='z-index: 1000; border:0; width:100%; height:100%;'src='https://www.google.com/maps/embed/v1/place?key=AIzaSyCT0nwdHgOiASwTY84VMt589mE184xTJ58 &q=" + cord + "' allowfullscreen></iframe>" + 
+				"</div>";
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Viewing our location.");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			$('#chatBox').append(map);
+						
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#mapDiv").fadeIn(400);
+}
+
+
+
 function displayMessageForm() {
 		var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-				"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
-				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = '  font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
-				"<textarea id = 'chatMessage' placeholder='Leave a Message...' style = '  width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 50px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
-				"<span onClick = 'sendAfterHourMessage()'class='blue medium'>Send Message</span>" +  
-			"</div>" +
-			"<div id = 'messageSentBlock' style = '  display: none;  width: 95%;important; padding-top: 2px;important; margin: auto;important;'>" +
-				"<div style = '  background-color:#F9F9F9;important; height: 60px!important;   overflow x: auto!important;  overflow y: auto!important;  width: 95%!important;  margin-top: 5px!important;  margin-left:4px!important;   border: 1px solid #A3A3A3!important;  padding: 3px!important;'> " +
-					"<p id = 'ChatMessageName' style = '  font-size: 14px!important;  margin-bottom: 12px!important; margin-top: 8px!important; color: #64C7E7!important;   line-height: 90%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '></p>" + 
-					"<p style = '   font-size: 14px!important;  font-family: Arial, Helvetica, sans-serif;important; color: #64C7E7!important; font-style: normal!important; margin-top: -5px!important; line-height: 90%!important; margin:-bottom: 5px;important; color: #4D4D4D;important;'>Your message as been sent.</p>" +
-				"</div> <br>" +
-			"</div> ";
+						"<div id = 'innerForm' style = 'display:block'>" +
+								"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
+								"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = '  font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
+								"<textarea id = 'chatMessage' placeholder='Leave a Message...' style = '  width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 50px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
+								"<span onClick = 'sendAfterHourMessage()'class='blue medium'>Send Message</span>" +  
+							"</div>" +
+						"</div> ";
 			
 			$('#messageInput').val("");
 			$("#messageInput").prop('disabled', true);
@@ -390,14 +422,14 @@ function displayTicketForm() {
 		$("#chatBox").animate({height:'250px', width:'700px'});
 		$("#chatContainer").animate({width:'340px'});
 		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+				"<div id = 'innerForm' style = 'display:block'>" +
 				"<select id = 'productListD' style = 'font-size: 15px!important; background-color: #F8F8F8!important; -moz-appearance:menulist!important -webkit-appearance:menulist!important; appearance:menulist!Important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; padding: 0px!important;  height: 25px!important; display:block!important; width: 100%!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;' ><option value='volvo'>Select a Product</option><option value='chat'>Implementation</option><option value='answerbase'>My AnswerBase</option><option value='chat'>Chat System</option><option value='tiles'>Tiles</option><option value='other'>Other</option> </select>" +			
 				"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
 				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = 'font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
 				"<textarea id = 'chatMessage' placeholder='Describe your issue here...' style = 'width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 70px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
 				"<span onClick = 'sendTicket()'class='blue medium'>Create Ticket</span>" +  
-			"</div>" +
-			"<div id = 'messageSentBlock' style = '  display: none;  width: 95%;important; padding-top: 2px;important; margin: auto;important;'>" +
-			"</div> ";
+					"</div>" +
+			"</div>";
 			
 			$('#messageInput').val("");
 			$("#messageInput").prop('disabled', true);
@@ -419,7 +451,7 @@ function displayTicketForm() {
 function displayTicketSelection() {
 	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
 				"<span onClick = 'displayTicketForm()' style = 'margin-bottom: 5px;' class='blue medium'>Open a Ticket</span>" +  
-				"<span onClick = 'openTicket()'class='blue medium'>My Tickets</span>" +  
+				"<span onClick = 'viewTicket()'class='blue medium'>My Tickets</span>" +  
 			"</div>";
 			
 			$('#messageInput').val("");
@@ -438,7 +470,40 @@ function displayTicketSelection() {
 			$("#chatMessageBlock").fadeIn(400);
 }
 
-function displayAnserBase() {
+function viewTicket() {
+			// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+								"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
+								"You can view your ticket status by entering your ticket number or email address below.</p>" +
+								"<input id = 'ChatNameInput' type='text' placeholder='Enter ticket number or email' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
+								"<span onClick = 'getTickets()'class='blue medium'>Find Ticket</span>" +  
+							"</div>" +
+						"<div id = 'messageSentBlock' style = '  display: none;  width: 95%;important; padding-top: 2px;important; margin: auto;important;'>" +  "</div> ";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "My Tickets");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("View My Tickets" , "", "", "");
+			$('#chatBox').append(ticketAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+function getTickets() {
+displayBanner("*Ticket or Email not found. ", "",  "#FF0000", "12px");
+$('#ChatNameInput').val(""); // Clear the input field
+}
+
+function displayAnswerBase() {
 		// Change the chat box height and width 
 		$("#chatBox").animate({height:'250px', width:'700px'});
 		$("#chatContainer").animate({width:'340px'});
@@ -448,7 +513,7 @@ function displayAnserBase() {
 	var answerAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important; margin: auto!important; padding-top: 3px!important;  display: none; '>" + 
 							"<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
 							"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-							"<span style = 'color: #6D6D6D!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + defaultQuestion + "&#34; </span>" + 
+							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + defaultQuestion + "&#34; </span>" + 
 							defaultIntro + 
 							"</p>" +			
 							"</div>" +
@@ -459,6 +524,9 @@ function displayAnserBase() {
 			$("#messageInput").attr("placeholder", "Search... (Enter to Send)");
 
 			$('#chatBox').html(""); // Clear the chat box first
+			
+			changeChatTopMessage("Search", siteName, true);
+
 			displayBanner("AnswerBase Search" , "", "", "");
 			$('#chatBox').append(answerAppend);
 			
@@ -472,8 +540,14 @@ function displayAnserBase() {
 			// This allows searches to AB
 			$("#messageInput").keyup(function(event){
 				if(event.keyCode == 13){ // Key code for enter button
-					requestAnswer($('#messageInput').val().trim());
-					$("#messageInput").val(""); // Reset input to empty
+					if ($('#messageInput').val().trim() != "") {
+						displayLoading("#chatMessageBlock", true);
+						displayBanner("AnswerBase Search" , "", "", "");
+						requestAnswer($('#messageInput').val().trim());
+						$("#messageInput").val(""); // Reset input to empty
+					} else {
+						displayBanner("*Please enter a valid question.", "",  "#FF0000", "12px");
+					}
 				}
 			}); 			
 }
@@ -482,7 +556,7 @@ function displayChatChoice() {
 	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
 						"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
 						"You can search our AnswerBase for help in this widget while you browse.</p>" +
-						"<span onClick = 'displayAnserBase()' style = 'margin-bottom: 5px;' class='blue medium'>Search AnswerBase</span>" +  
+						"<span onClick = 'displayAnswerBase()' style = 'margin-bottom: 5px;' class='blue medium'>Search AnswerBase</span>" +  
 						"<span onClick = 'itemSelected(2)' class='blue medium'>Message Us</span>" +  
 					"</div>";
 			
@@ -500,40 +574,49 @@ function displayChatChoice() {
 
 			$("#chatMessageBlock").fadeIn(400);
 }
-
-function openTicket() {
-	displayBanner("*Our Ticket system is currently disabled.", "",  "#FF0000", "12px");
-}
 						
 function displayItemSelection() {
+	iconColor = "#63B8FD";
+	tileColor = "#f8f8f8";
+	tileHoverColor = "#DFF1FF";
 	var awayAppend =  "<link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>" +
 					"<div  id  = 'itemBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
 					
-						"<div class = 'wedge' onClick = 'itemSelected(1)' style = 'float:left;  width:49%!important; margin-bottom: 5px!important; height: 72px!important; vertical-align: top;  display: inline-block!important; background-color: #F4F4F4;' >" +
-						"<div style = 'color: #716F6F; text-align: center;  margin: auto; padding-top: 15px; font-size: 31px;' class='icon fa-comments'><p style = 'font-size: 15px;  cursor: default;  margin: 0px;  line-height: 100%!important;  padding: 0px; margin-top: 6px!important; '>Live Chat<p></div>" +
+						"<div class = 'wedge' onClick = 'itemSelected(1)' style = 'float:left;  width:49%!important; margin-bottom: 5px!important; height: 72px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-comments'><p style = 'font-size: 15px;  cursor: default;  margin: 0px;  line-height: 100%!important;  padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat<p></div>" +
 						"</div>" +
 						
-						"<div class = 'wedge' onClick = 'itemSelected(2)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color: #F4F4F4;' >" +
-						"<div style = 'color: #716F6F; text-align: center;  margin: auto; padding-top: 15px; font-size: 31px;' class='icon fa-envelope'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  cursor: default;  '>Message Us<p></div>" +
+						"<div class = 'wedge' onClick = 'itemSelected(2)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-envelope'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Message Us<p></div>" +
 						"</div>" +
 						
-						"<div class = 'wedge' onClick = 'itemSelected(3)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color: #F4F4F4;' >" +
-						"<div style = 'color: #716F6F; text-align: center;  margin: auto; padding-top: 15px; font-size: 31px;' class='icon fa-ticket'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  cursor: default;  '>Ticket<p></div>" +
+						"<div class = 'wedge' onClick = 'itemSelected(3)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";'>" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-ticket'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Ticket<p></div>" +
 						"</div>" +
+
 						
-						"<div class = 'wedge' onClick = 'itemSelected(4)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color: #F4F4F4;' >" +
-						"<div style = 'color: #716F6F; text-align: center;  margin: auto; padding-top: 15px; font-size: 31px;' class='icon fa-question-circle'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important;  cursor: default;  '>Learn About Me<p></div>" +
+						"<div class = 'wedge' onClick = 'itemSelected(6)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-search '><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>AnswerBase<p></div>" +
+						"</div>" +	
+						
+												
+						"<div class = 'wedge' onClick = 'itemSelected(5)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-map-marker'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>Where are we?<p></div>" +
 						"</div>" +		
 						
+						"<div class = 'wedge' onClick = 'itemSelected(4)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-question-circle'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>About Me<p></div>" +
+						"</div>" +	
+
 					"</div> ";
 					
 					// On hover for items after dom load append
 					$(document).on('mouseover', '.wedge', function(e) {
-						$(this).css('background-color', '#C8E7FF');
+						$(this).css('background-color',  tileHoverColor);
 					});
 					
 					$(document).on('mouseout', '.wedge', function(e) {
-						$(this).css('background-color', '#F4F4F4');
+						$(this).css('background-color', tileColor);
 					});
 					
 			$("#messageInput").prop('disabled', true);
@@ -549,6 +632,29 @@ function displayItemSelection() {
 			}
 			
 			$("#itemBlock").fadeIn(400);
+}
+
+var spinner; // Global controlled loading spinner 
+function displayLoading(element, show) {
+	if (show) {
+		if ($("#innerForm").length) {
+			$("#innerForm").hide();
+		}
+		$(element).children().hide(); 
+		var opts = { lines: 10, length: 17 , width: 2, radius: 0 , scale: 1 , corners: 0.5, color: '#000',
+		opacity: 0.2 , rotate: 89 , direction: 1 , speed: 1.1 , trail: 60 , fps: 20 , zIndex: 2e9 ,
+		className: 'spinner' , top: '50%', left: '50%', shadow: false, hwaccel: false , position: 'absolute' };
+		if (spinner == null) {
+		spinner = new Spinner(opts).spin();
+		} else {
+		spinner.spin();
+		}
+		$(element).append(spinner.el);
+	} else {
+		// Please clear element in your own. Use div ID 'innerForm to keep from elements values
+		spinner.stop();
+		$("#innerForm").hide();
+	}
 }
 
 // ******** COOKIE FUNCTIONS ********
@@ -572,7 +678,7 @@ function getCookie(cname) {
     return "";
 }
 
-/* ********AJAX REQUEST: Request Data BELOW ********
+/* =============================== AJAX REQUEST: Request Data BELOW ===============================
 The following functions request data from the server
 and handle the data in a callback */
 
@@ -580,6 +686,7 @@ and handle the data in a callback */
 // ******** FORM MESSAGE FUNCTIONS ******** 
 function sendAfterHourMessage() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
+	displayLoading("#chatMessageBlock", true); // kill loading animation
 	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val()};
 			$.ajax({
 				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveAwayMessage",
@@ -591,26 +698,32 @@ function sendAfterHourMessage() {
 				  success: function(data) {
 					// Nothing
 			}});
-			
-		$('#chatMessageBlock').slideUp();
-		$('#messageSentBlock').slideDown();
-		displayBanner("After Hours Support" , "", "", "");
-		//$('#waitingText').html("<span style = 'font-weight: 600!important; font-family: Arial, Helvetica, sans-serif!important;  color: #616161!important; margin: 0px!important; padding: 0px!important; font-size: 15px!important;'>After Hours Support</span> <span style = 'font-weight: 500!important; font-family: Arial, Helvetica, sans-serif!important;  margin: 0px!important; padding: 0px!important;'></span> <hr style = 'width: 95%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'>");	
-		if ($('#ChatNameInput').val() != "") {
-		$('#ChatMessageName').html("Thank you, " + $('#ChatNameInput').val());
-		} else {
-		$('#ChatMessageName').html("Thank you, valued customer!");
-		}	
+			displayBanner("Leave us a message" , "", "", "");
 	return true;
 	} else {
 		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
 	}
 }
 function jsonCallbackAwayMessage() {
-// Call back function from sendAfterHourMessage() if SUCCESS
+		displayBanner("Message Sent" , "", "", "");
+		displayLoading("#chatMessageBlock", false); // kill loading animation
+		if ($('#ChatNameInput').val() != "") {
+		custName = $('#ChatNameInput').val();
+		} else {
+		custName = "valued customer";
+		}
+		 var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 0px; border-radius: 5px;'>" +
+							"<p  style = 'padding: 2px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+								"<span style = 'color: #59AFFF!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'>Thank you, " + custName + "</span>" + 
+								"Your message has been sent and will get back with you shortly at " + $("#ChatContactInput").val() +
+							"</p>" +			
+						"</div>";
+	  
+	    $("#chatMessageBlock").append(htmlItem);
+		$('#chatMessageBlock').fadeIn();
 }
 
-// ******** FORM MESSAGE FUNCTIONS ******** 
+// =============================== FORM MESSAGE FUNCTIONS =============================== 
 function sendTicket() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
 	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val()};
@@ -624,12 +737,15 @@ function sendTicket() {
 				  success: function(data) {
 					// Nothing
 			}});
+	displayLoading("#chatMessageBlock", true);
 	return true;
 	} else {
 		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
 	}
 }
+
 function jsonCallbackTicket(data) {
+	displayLoading("#chatMessageBlock", false); // kill loading animation
 	var custName = "";
 	if ($('#ChatNameInput').val() != "") {
 		custName = $('#ChatNameInput').val() + ", ";
@@ -645,10 +761,8 @@ function jsonCallbackTicket(data) {
 							"</p>" +			
 						"</div>";
 	  
-	    $("#messageSentBlock").append(htmlItem);
-			
-		$('#chatMessageBlock').slideUp();
-		$('#messageSentBlock').slideDown();
+	    $("#chatMessageBlock").append(htmlItem);
+		$('#chatMessageBlock').fadeIn();
 		displayBanner("Ticket Created" , "", "", "");
 }
 
@@ -701,24 +815,33 @@ function requestAnswer(question) {
 		}});						
 }
 
-function jsonCallbackAnswers(data) {		 	
+function jsonCallbackAnswers(data) {	
 	$('#chatMessageBlock').html(""); // Clear the chat box first
 	displayBanner("AnswerBase Search" , "", "", "");
-
-	data.forEach(function(object) {
-	  console.log(object.answer);
-	  var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
-							"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-								"<span style = 'color: #6D6D6D!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + object.question + "&#34; </span>" + 
-								object.answer + 
-							"</p>" +			
-						"</div>";
-	  
-	  $("#chatMessageBlock").append(htmlItem);
-	});
+	var htmlItem = "";
+	if (data.length > 0) {
+		data.forEach(function(object) {
+		  console.log(object.answer);
+		  var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
+								"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+									"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + object.question + "&#34; </span>" + 
+									object.answer + 
+								"</p>" +			
+							"</div>";
+							$("#chatMessageBlock").append(htmlItem);
+		});
+	} else {
+		htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
+						"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + "No Results" + "&#34; </span>" + 
+								"Looks like we don't have an answer for that question, ask something else." + 
+						"</p>" +			
+					"</div>";
+						 $("#chatMessageBlock").append(htmlItem);
+	}
 }
 
- // ******** 3ed party library support below. When updating or adding new libraries always check IE support! ********
+ // =============================== 3ed party library support below. When updating or adding new libraries always check IE support! ===============================
  // ******** WebSocket with graceful degradation - jQuery plugin VERSION 0.1 ********
 (function($){$.extend({gracefulWebSocket:function(url,options){this.defaults={keepAlive:false,autoReconnect:false,fallback:true,fallbackSendURL:url.replace('ws:','http:').replace('wss:','https:'),fallbackSendMethod:'POST',fallbackPollURL:url.replace('ws:','http:').replace('wss:','https:'),fallbackPollMethod:'GET',fallbackOpenDelay:100,fallbackPollInterval:3000,fallbackPollParams:{}};var opts=$.extend({},this.defaults,options);function FallbackSocket(){var CONNECTING=0;var OPEN=1;var CLOSING=2;var CLOSED=3;var pollInterval;var openTimout;var fws={readyState:CONNECTING,bufferedAmount:0,send:function(data){var success=true;$.ajax({async:false,type:opts.fallbackSendMethod,url:opts.fallbackSendURL+'?'+$.param(getFallbackParams()),data:data,dataType:'text',contentType:"application/x-www-form-urlencoded; charset=utf-8",success:pollSuccess,error:function(xhr){success=false;$(fws).triggerHandler('error');}});return success;},close:function(){clearTimeout(openTimout);clearInterval(pollInterval);this.readyState=CLOSED;$(fws).triggerHandler('close');},onopen:function(){},onmessage:function(){},onerror:function(){},onclose:function(){},previousRequest:null,currentRequest:null};function getFallbackParams(){fws.previousRequest=fws.currentRequest;fws.currentRequest=new Date().getTime();return $.extend({"previousRequest":fws.previousRequest,"currentRequest":fws.currentRequest},opts.fallbackPollParams);}
 function pollSuccess(data){var messageEvent={"data":data};fws.onmessage(messageEvent);}
@@ -727,6 +850,14 @@ openTimout=setTimeout(function(){fws.readyState=OPEN;$(fws).triggerHandler('open
 var ws=window.WebSocket?new WebSocket(url):new FallbackSocket();$(window).unload(function(){ws.close();ws=null});return ws;}});})(jQuery);
 
 // ******** IE PLACE-HOLDER SUPPORT: HTML5 Place-holder jQuery Plugin - v2.1.2 ********
-!function(a){"function"==typeof define&&define.amd?define(["jquery"],a):a("object"==typeof module&&module.exports?require("jquery"):jQuery)}(function(a){function b(b){var c={},d=/^jQuery\d+$/;return a.each(b.attributes,function(a,b){b.specified&&!d.test(b.name)&&(c[b.name]=b.value)}),c}function c(b,c){var d=this,f=a(d);if(d.value==f.attr("placeholder")&&f.hasClass(m.customClass))if(f.data("placeholder-password")){if(f=f.hide().nextAll('input[type="password"]:first').show().attr("id",f.removeAttr("id").data("placeholder-id")),b===!0)return f[0].value=c;f.focus()}else d.value="",f.removeClass(m.customClass),d==e()&&d.select()}function d(){var d,e=this,f=a(e),g=this.id;if(""===e.value){if("password"===e.type){if(!f.data("placeholder-textinput")){try{d=f.clone().prop({type:"text"})}catch(h){d=a("<input>").attr(a.extend(b(this),{type:"text"}))}d.removeAttr("name").data({"placeholder-password":f,"placeholder-id":g}).bind("focus.placeholder",c),f.data({"placeholder-textinput":d,"placeholder-id":g}).before(d)}f=f.removeAttr("id").hide().prevAll('input[type="text"]:first').attr("id",g).show()}f.addClass(m.customClass),f[0].value=f.attr("placeholder")}else f.removeClass(m.customClass)}function e(){try{return document.activeElement}catch(a){}}var f,g,h="[object OperaMini]"==Object.prototype.toString.call(window.operamini),i="placeholder"in document.createElement("input")&&!h,j="placeholder"in document.createElement("textarea")&&!h,k=a.valHooks,l=a.propHooks;if(i&&j)g=a.fn.placeholder=function(){return this},g.input=g.textarea=!0;else{var m={};g=a.fn.placeholder=function(b){var e={customClass:"placeholder"};m=a.extend({},e,b);var f=this;return f.filter((i?"textarea":":input")+"[placeholder]").not("."+m.customClass).bind({"focus.placeholder":c,"blur.placeholder":d}).data("placeholder-enabled",!0).trigger("blur.placeholder"),f},g.input=i,g.textarea=j,f={get:function(b){var c=a(b),d=c.data("placeholder-password");return d?d[0].value:c.data("placeholder-enabled")&&c.hasClass(m.customClass)?"":b.value},set:function(b,f){var g=a(b),h=g.data("placeholder-password");return h?h[0].value=f:g.data("placeholder-enabled")?(""===f?(b.value=f,b!=e()&&d.call(b)):g.hasClass(m.customClass)?c.call(b,!0,f)||(b.value=f):b.value=f,g):b.value=f}},i||(k.input=f,l.value=f),j||(k.textarea=f,l.value=f),a(function(){a(document).delegate("form","submit.placeholder",function(){var b=a("."+m.customClass,this).each(c);setTimeout(function(){b.each(d)},10)})}),a(window).bind("beforeunload.placeholder",function(){a("."+m.customClass).each(function(){this.value=""})})}});
+!function(a){"function"==typeof define&&define.amd?define(["jquery"],a):a("object"==typeof module&&module.exports?require("jquery"):jQuery)}(function(a){function b(b){var c={},d=/^jQuery\d+$/;return a.each(b.attributes,function(a,b){b.specified&&!d.test(b.name)&&(c[b.name]=b.value)}),c}function c(b,c){var d=this,f=a(d);if(d.value==f.attr("placeholder")&&f.hasClass(m.customClass))if(f.data("placeholder-password")){if(f=f.hide().nextAll('input[type="password"]:first').show().attr("id",f.removeAttr("id").data("placeholder-id")),b===!0)return f[0].value=c;f.focus()}else d.value="",f.removeClass(m.customClass),d==e()&&d.select()}function d(){var d,e=this,f=a(e),g=this.id;if(""===e.value){if("password"===e.type){if(!f.data("placeholder-textinput")){try{d=f.clone().prop({type:"text"})}catch(h){d=a("<input>").attr(a.extend(b(this),{type:"text"}))}d.removeAttr("name").data({"placeholder-password":f,"placeholder-id":g}).bind("focus.placeholder",c),f.data({"placeholder-textinput":d,"placeholder-id":g}).before(d)}f=f.removeAttr("id").hide().prevAll('input[type="text"]:first').attr("id",g).show()}f.addClass(m.customClass),f[0].value=f.attr("placeholder")}else f.removeClass(m.customClass)}function e(){try{return document.activeElement}catch(a){}}var f,g,h="[object OperaMini]"==Object.prototype.toString.call(window.operamini),i="placeholder"in document.createElement("input")&&!h,j="placeholder"in document.createElement("textarea")&&!h,k=a.valHooks,l=a.propHooks;if(i&&j)g=a.fn.placeholder=function(){return this},g.input=g.textarea=!0;else{var m={};g=a.fn.placeholder=function(b){var e={customClass:"placeholder"};m=a.extend({},e,b);var f=this;return f.filter((i?"textarea":":input")+"[placeholder]").not("."+m.customClass).bind({"focus.placeholder":c,"blur.placeholder":d}).data("placeholder-enabled",!0).trigger("blur.placeholder"),f},g.input=i,g.textarea=j,f={get:function(b){var c=a(b),d=c.data("placeholder-password");return d?d[0].value:c.data("placeholder-enabled")&&c.hasClass(m.customClass)?"":b.value},set:function(b,f){var g=a(b),h=g.data("placeholder-password");return h?h[0].value=f:g.data("placeholder-enabled")?(""===f?(b.value=f,b!=e()&&d.call(b)):g.hasClass(m.customClass)?c.call(b,!0,f)||(b.value=f):b.value=f,g):b.value=f}},i||(k.input=f,l.value=f),j||(k.textarea=f,l.value=f),a(function(){a(document).delegate("form","submit.placeholder",function(){var b=a("."+m.customClass,this).each(c);
+setTimeout(function(){b.each(d)},10)})}),a(window).bind("beforeunload.placeholder",function(){a("."+m.customClass).each(function(){this.value=""})})}});
+
+
+// ******** Loading Spinner CSS and Functions Library: http://spin.js.org/#v2.3.1 ********
+!function(a,b){"object"==typeof exports?module.exports=b():"function"==typeof define&&define.amd?define(b):a.Spinner=b()}(this,function(){"use strict";function a(a,b){var c,d=document.createElement(a||"div");for(c in b)d[c]=b[c];return d}function b(a){for(var b=1,c=arguments.length;c>b;b++)a.appendChild(arguments[b]);return a}function c(a,b,c,d){var e=["opacity",b,~~(100*a),c,d].join("-"),f=.01+c/d*100,g=Math.max(1-(1-a)/b*(100-f),a),h=j.substring(0,j.indexOf("Animation")).toLowerCase(),i=h&&"-"+h+"-"||"";return m[e]||(k.insertRule("@"+i+"keyframes "+e+"{0%{opacity:"+g+"}"+f+"%{opacity:"+a+"}"+(f+.01)+"%{opacity:1}"+(f+b)%100+"%{opacity:"+a+"}100%{opacity:"+g+"}}",k.cssRules.length),m[e]=1),e}function d(a,b){var c,d,e=a.style;if(b=b.charAt(0).toUpperCase()+b.slice(1),void 0!==e[b])return b;for(d=0;d<l.length;d++)if(c=l[d]+b,void 0!==e[c])return c}function e(a,b){for(var c in b)a.style[d(a,c)||c]=b[c];return a}function f(a){for(var b=1;b<arguments.length;b++){var c=arguments[b];for(var d in c)void 0===a[d]&&(a[d]=c[d])}return a}function g(a,b){return"string"==typeof a?a:a[b%a.length]}function h(a){this.opts=f(a||{},h.defaults,n)}function i(){function c(b,c){return a("<"+b+' xmlns="urn:schemas-microsoft.com:vml" class="spin-vml">',c)}k.addRule(".spin-vml","behavior:url(#default#VML)"),h.prototype.lines=function(a,d){function f(){return e(c("group",{coordsize:k+" "+k,coordorigin:-j+" "+-j}),{width:k,height:k})}function h(a,h,i){b(m,b(e(f(),{rotation:360/d.lines*a+"deg",left:~~h}),b(e(c("roundrect",{arcsize:d.corners}),{width:j,height:d.scale*d.width,left:d.scale*d.radius,top:-d.scale*d.width>>1,filter:i}),c("fill",{color:g(d.color,a),opacity:d.opacity}),c("stroke",{opacity:0}))))}var i,j=d.scale*(d.length+d.width),k=2*d.scale*j,l=-(d.width+d.length)*d.scale*2+"px",m=e(f(),{position:"absolute",top:l,left:l});
+if(d.shadow)for(i=1;i<=d.lines;i++)h(i,-2,"progid:DXImageTransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)");for(i=1;i<=d.lines;i++)h(i);return b(a,m)},h.prototype.opacity=function(a,b,c,d){var e=a.firstChild;d=d.shadow&&d.lines||0,e&&b+d<e.childNodes.length&&(e=e.childNodes[b+d],e=e&&e.firstChild,e=e&&e.firstChild,e&&(e.opacity=c))}}var j,k,l=["webkit","Moz","ms","O"],m={},n={lines:12,length:7,width:5,radius:10,scale:1,corners:1,color:"#000",opacity:.25,rotate:0,direction:1,speed:1,trail:100,fps:20,zIndex:2e9,className:"spinner",top:"50%",left:"50%",shadow:!1,hwaccel:!1,position:"absolute"};if(h.defaults={},f(h.prototype,{spin:function(b){this.stop();var c=this,d=c.opts,f=c.el=a(null,{className:d.className});
+if(e(f,{position:d.position,width:0,zIndex:d.zIndex,left:d.left,top:d.top}),b&&b.insertBefore(f,b.firstChild||null),f.setAttribute("role","progressbar"),c.lines(f,c.opts),!j){var g,h=0,i=(d.lines-1)*(1-d.direction)/2,k=d.fps,l=k/d.speed,m=(1-d.opacity)/(l*d.trail/100),n=l/d.lines;!function o(){h++;for(var a=0;a<d.lines;a++)g=Math.max(1-(h+(d.lines-a)*n)%l*m,d.opacity),c.opacity(f,a*d.direction+i,g,d);c.timeout=c.el&&setTimeout(o,~~(1e3/k))}()}return c},stop:function(){var a=this.el;return a&&(clearTimeout(this.timeout),a.parentNode&&a.parentNode.removeChild(a),this.el=void 0),this},lines:function(d,f){function h(b,c){return e(a(),{position:"absolute",width:f.scale*(f.length+f.width)+"px",height:f.scale*f.width+"px",background:b,boxShadow:c,transformOrigin:"left",transform:"rotate("+~~(360/f.lines*k+f.rotate)+"deg) translate("+f.scale*f.radius+"px,0)",borderRadius:(f.corners*f.scale*f.width>>1)+"px"})}for(var i,k=0,l=(f.lines-1)*(1-f.direction)/2;k<f.lines;k++)i=e(a(),{position:"absolute",top:1+~(f.scale*f.width/2)+"px",transform:f.hwaccel?"translate3d(0,0,0)":"",opacity:f.opacity,animation:j&&c(f.opacity,f.trail,l+k*f.direction,f.lines)+" "+1/f.speed+"s linear infinite"}),f.shadow&&b(i,e(h("#000","0 0 4px #000"),{top:"2px"})),b(d,b(i,h(g(f.color,k),"0 0 1px rgba(0,0,0,.1)")));return d},opacity:function(a,b,c){b<a.childNodes.length&&(a.childNodes[b].style.opacity=c)}}),"undefined"!=typeof document){k=function(){var c=a("style",{type:"text/css"});return b(document.getElementsByTagName("head")[0],c),c.sheet||c.styleSheet}();var o=e(a("group"),{behavior:"url(#default#VML)"});!d(o,"transform")&&o.adj?i():j=d(o,"animation")}return h});
+
 
 //************ SonicChat 2015 - End of SonicChat JS File ************
