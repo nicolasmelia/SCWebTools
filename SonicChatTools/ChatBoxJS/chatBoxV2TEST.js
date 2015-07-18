@@ -48,8 +48,7 @@ var chatBoxHtml =  "<style>" +
 		"</div>" +
 		"</div>" +
 	"</div>";
-							
-// Test for an active chat and append chat box							
+																										
 $(document).ready(function() {
 	var iOS = false, p = navigator.platform;
 	if( p != 'iPad' || p != 'iPhone' || p != 'iPod' ){	
@@ -59,8 +58,13 @@ $(document).ready(function() {
 	}	
 });
 
-
-// =============================== STANDARD CHAT WIDGET FUNCTIONS ===============================
+// ****** Start chat with host on users demand******
+function startChat() {
+	// When a user wants to start a chat start a socket
+	if (!initiatedChat && !away) {
+		connectToHost(); 
+	} 
+}
 
 function openChatBox() {
 	// Reset height of chat box if changed
@@ -83,676 +87,12 @@ function openChatBox() {
 			$("#chatMessageBlock").fadeOut(400);
 		}
 		itemDisplay = true;
-		displayTileSelection();
+		displayItemSelection();
 		changeChatTopMessage(siteName, "Support", false, false);
 	}	
 }
 
-var spinner; // Global controlled loading spinner 
-function displayLoading(element, show) {
-	if (show) {
-		if ($("#innerForm").length) {
-			$("#innerForm").hide();
-		}
-		$(element).children().hide(); 
-		var opts = { lines: 10, length: 17 , width: 2, radius: 0 , scale: 1 , corners: 0.5, color: '#000',
-		opacity: 0.2 , rotate: 89 , direction: 1 , speed: 1.1 , trail: 60 , fps: 20 , zIndex: 2e9 ,
-		className: 'spinner' , top: '50%', left: '50%', shadow: false, hwaccel: false , position: 'absolute' };
-		if (spinner == null) {
-		spinner = new Spinner(opts).spin();
-		} else {
-		spinner.spin();
-		}
-		$(element).append(spinner.el);
-	} else {
-		// Please clear element in your own. Use div ID 'innerForm to keep from elements values
-		spinner.stop();
-		$("#innerForm").hide();
-	}
-}
-
-function displayBanner(message, messageSmall, color, size) {
-	if (color == "") {
-		color = "#616161";
-	}
-	if (size == ""){
-		size = "15px";
-	}
-	if ($('#waitingText').length == 0) {
-		$('#chatBox').append("<div id = 'waitingText' style = 'font-color: #000000!important; line-height: 105%!important; border: 0px!important; height: 21px!important; margin-top: 8px!important; margin-bottom: 2px!important;  font-family: Arial, Helvetica, sans-serif!important; padding: 0px!important; margin-bottom: 7px!important; font-weight: 600!important; text-align: center!important; font-size: 14px!important;'><span style = 'font-weight: 550!important; font-family: Arial, Helvetica, sans-serif!important;  color: #616161!important; margin: 0px!important; padding: 0px!important; font-size: 15px!important;'>" + message+ "</span><span style = 'font-weight: 500!important; color: #616161!important; font-family: Arial, Helvetica, sans-serif!important;  margin: 0px!important; padding: 0px!important;'> " + messageSmall + "</span> <hr style = 'width: 95%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'></div>");
-	} else {
-		$('#waitingText').html("<span style = 'font-weight: 600!important; font-family: Arial, Helvetica, sans-serif!important; color:" + color + "!important; margin: 0px!important; padding: 0px!important; font-size:" + size + "!important;'>" + message + "</span> <span style = 'font-weight: 500!important; font-family: Arial, Helvetica, sans-serif!important;  margin: 0px!important; padding: 0px!important;'> " + messageSmall + "</span> <hr style = 'width: 95%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'>");	
-	}
-}
-
-function changeChatTopMessage(message, messageTwo, backVis, navUp) {
-$('#chatTopMessage').html('<span style = "color: #63B8FD!important; font-weight: 600!important; ">' + message + '</span> </b> <span style = "color: #E9E9E9!important; font-weight: 600!important; ">' + messageTwo + '</span>  <img  id = "chatArrow"  class = "arrowImg"  src = "http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png"> <span id = "backimg" style = "color: #c1c1c1!important; display: none; margin: 0px!important; padding: 0px!important; padding-right: 15px!important; float: right; font-size: 18px;" class="icon fa-hand-o-left"></span>');
-	if (backVis) {
-		$("#backimg").css("display", "inline-block");
-	} else if (!backVis){
-		$("#backimg").css("display", "none");
-	}
-	
-	if (navUp) {
-		$('#chatArrow').attr('src', 'http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png');
-	} else {
-		$('#chatArrow').attr('src', 'http://sonicchat.elasticbeanstalk.com/static/images/nav-down.png');
-	}
-	
-	// Reset chat message input
-	$('#messageInput').val("");
-	
-}
-
-
-// =============================== COOKIE FUNCTIONS =============================== 
-
-function setCookie(cname,cvalue,exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires=" + d.toGMTString();
-    document.cookie = cname+"="+cvalue+"; "+expires;
-}
-
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
-// =============================== IMPORTANT!!! ACTIVE HOST TEST (FOR STANDARD CHAT TILE) =============================== 
-function testActiveHost() {
-	if (!away) {
-		// Function is dedicated to see if services is in after hours and/or there are even an active host, 
-			$.ajax({
-				  url: "http://sonicchat.elasticbeanstalk.com/DataAccess/testHostActive/" + siteID,
-				  dataType: 'jsonp',
-				  crossDomain:true,
-				  jsonpCallback: "jsonCallback",
-				  scriptCharset: 'UTF-8',
-				  success: function(data) {
-					//alert(result[0].description);
-			}});						
-	}
-}
-
-function jsonCallback(data) {
-var testVal = data.result;
-	if (testVal == "TRUE" && getCookie("connectionID") != "") {
-		// Keeps alive the concurrent chat between host and this client
-		away = false;
-		connectToHost(); 
-	} else if(testVal == "FALSE") {
-		away = true;
-		displayTileSelection();
-	} else if (testVal == "TRUE") {
-		away = false;
-		displayTileSelection();	
-	} else {
-	// TODO: Error response from server, create a fallback
-	}
-}
-
-
-// =============================== DYNAMIC TILE IMPLIMENTATION ===============================
-
-/* 
-Tile implementation is DYNAMICLY created and appended to this file based on 
-client selected tiles and configuration. 
-
-THIS FILE INCLUDES THE FOLLOWING TILES:
-1. Chat V1
-2. AnswerBase V1
-3. Ticket V1
-4. Map V1
-5. Message V1
-6. FeedBack (Beta)
-7. Link - Name: AboutMe to /about.html
-
-Created with Server function DYNAMICTILEAPPENDER, Version: 1
- 
- */
-
-
-// Main TILE choice options. Dynamic.
-function itemSelected(item) {
-	// Unbind any keyup events to avoid double sends
-	$('#messageInput').unbind('keyup');
-	if (item == 1) {
-		// Live chat
-		if (!away) {
-		connectToHost(); 
-		} else {
-		AnswerbaseSearchYesNo();
-		}
-		itemDisplay = false;
-		changeChatTopMessage("Chat with", siteName, true);
-	} else if(item == 2) {
-		// Message
-		displayMessageForm();
-		changeChatTopMessage("Contact Us", "", true);
-		itemDisplay = false;
-	} else if (item == 3) {
-		displayTicketSelection();
-		changeChatTopMessage("Ticket Support", "", true);
-		itemDisplay = false;
-	} else if (item == 4) {
-		window.open("/about.html", "_self");
-	   $("#itemBlock").fadeOut(600);
-	} else if (item == 5) {
-		// Google Map of location
-		displayMap();
-		changeChatTopMessage("Map View", "", true);
-		itemDisplay = false;
-	} else if (item == 6) {
-		// Answerbase 
-		displayAnswerBase();
-		itemDisplay = false;
-	} else if (item == 7) {
-		displayFeedBackForm();
-		changeChatTopMessage("Feedback and", "Support", true);
-		itemDisplay = false;
-		$(function () {
-		  $("#rateYo").rateYo({
-			rating: 3,
-			fullStar: true,
-			starWidth: "20px"
-		  });
-		});	
-	}
-	
-	// Hide item selection block if left visible
-	if($('#itemBlock').length == 0){
-		$("#itemBlock").css("display", "none");
-	}
-}
-
-
-function displayTileSelection() {
-	iconColor = "#63B8FD";
-	tileColor = "#f8f8f8";
-	tileHoverColor = "#DFF1FF";
-	var awayAppend =  "<div  id  = 'itemBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-					
-							"<div class = 'wedge' onClick = 'itemSelected(1)' style = 'float:left;  width:49%!important; margin-bottom: 5px!important; height: 72px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-comments'><p style = 'font-size: 15px;  cursor: default;  margin: 0px;  line-height: 100%!important;  padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat<p></div>" +
-							"</div>" +
-							
-							"<div class = 'wedge' onClick = 'itemSelected(6)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-search '><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>AnswerBase<p></div>" +
-							"</div>" +	
-							
-							"<div class = 'wedge' onClick = 'itemSelected(3)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";'>" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-ticket'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Ticket<p></div>" +
-							"</div>" +
-																		
-							"<div class = 'wedge' onClick = 'itemSelected(5)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-map-marker'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>Where are we?<p></div>" +
-							"</div>" +	
-							
-							"<div class = 'wedge' onClick = 'itemSelected(2)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-envelope'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Message Us<p></div>" +
-							"</div>" +
-							
-							"<div class = 'wedge' onClick = 'itemSelected(7)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-star-half-o'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Feedback<p></div>" +
-							"</div>" +
-						
-							"<div class = 'wedge' onClick = 'itemSelected(4)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-question-circle'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>About Me<p></div>" +
-							"</div>" +	
-
-						"</div> ";
-					
-					// On hover for items after dom load append
-					$(document).on('mouseover', '.wedge', function(e) {
-						$(this).css('background-color',  tileHoverColor);
-					});
-					
-					$(document).on('mouseout', '.wedge', function(e) {
-						$(this).css('background-color', tileColor);
-					});
-					
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Help and Support");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Welcome, choose an option" , "", "", "");
-			$('#chatBox').append(awayAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#itemBlock").fadeIn(400);
-}
-
-// ===============================  MAP TILE ===============================
-
-function displayMap(){
-		displayLoading("chatBox", true);
-		var cord = "Downtown cleveland ohio" // coordinates of map location
-		// Change the chat box height and width 
-		$("#chatBox").animate({height:'250px', width:'700px'});
-		$("#chatContainer").animate({width:'340px'});
-		var map = "<div  id  = 'mapDiv' style = 'width: 100%!important; height: 100%!important; overflow-y: hidden; overflow-x: hidden;  margin: auto!important;  padding-top: 0px!important;  display: none; '>" + 					
-					"<iframe  id = 'mapFrame' frameborder='0' style='z-index: 1000; border:0; width:100%; height:100%;'src='https://www.google.com/maps/embed/v1/place?key=AIzaSyCT0nwdHgOiASwTY84VMt589mE184xTJ58 &q=" + cord + "' allowfullscreen></iframe>" + 
-				"</div>";
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Viewing our location.");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			$('#chatBox').append(map);
-						
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#mapDiv").fadeIn(400);
-}
-
-// =============================== MESSAGE TILE =============================== 
-
-function displayMessageForm() {
-		var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-						"<div id = 'innerForm' style = 'display:block'>" +
-								"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
-								"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = '  font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
-								"<textarea id = 'chatMessage' placeholder='Leave a Message...' style = '  width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 50px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
-								"<span onClick = 'sendAfterHourMessage()'class='blue medium'>Send Message</span>" +  
-							"</div>" +
-						"</div> ";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Leave us a detailed message");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Leave us a message" , "", "", "");
-			$('#chatBox').append(awayAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-function sendAfterHourMessage() {
-	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
-	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val()};
-			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveAwayMessage",
-				dataType: 'jsonp',
-				crossDomain:true,
-				jsonpCallback: "jsonCallbackAwayMessage",
-				data: data,
-				scriptCharset: 'UTF-8',
-				  success: function(data) {
-					// Nothing
-			}});
-			displayBanner("Leave us a message" , "", "", "");
-	return true;
-	} else {
-		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
-	}
-}
-
-function jsonCallbackAwayMessage() {
-		displayBanner("Message Sent" , "", "", "");
-		displayLoading("#chatMessageBlock", false); // kill loading animation
-		if ($('#ChatNameInput').val() != "") {
-		custName = $('#ChatNameInput').val();
-		} else {
-		custName = "valued customer";
-		}
-		 var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 0px; border-radius: 5px;'>" +
-							"<p  style = 'padding: 2px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-								"<span style = 'color: #59AFFF!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'>Thank you, " + custName + "</span>" + 
-								"Your message has been sent and will get back with you shortly at " + $("#ChatContactInput").val() +
-							"</p>" +			
-						"</div>";
-	  
-	    $("#chatMessageBlock").append(htmlItem);
-		$('#chatMessageBlock').fadeIn();
-}
-
-// =============================== TICKET TILE =============================== 
-function displayTicketForm() {
-		// Change the chat box height and width 
-		$("#chatBox").animate({height:'250px', width:'700px'});
-		$("#chatContainer").animate({width:'340px'});
-		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important; padding-top: 3px!important; display: none; '>" + 
-				"<div id = 'innerForm' style = 'display:block'>" +
-				"<select id = 'productListD' style = 'font-size: 15px!important; background-color: #F8F8F8!important; -moz-appearance:menulist!important -webkit-appearance:menulist!important; appearance:menulist!Important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; padding: 0px!important;  height: 25px!important; display:block!important; width: 100%!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;' ><option value='volvo'>Select a Product</option><option value='chat'>Implementation</option><option value='answerbase'>My AnswerBase</option><option value='chat'>Chat System</option><option value='tiles'>Tiles</option><option value='other'>Other</option> </select>" +			
-				"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
-				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = 'font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
-				"<textarea id = 'chatMessage' placeholder='Describe your issue here...' style = 'width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 70px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
-				"<span onClick = 'sendTicket()'class='blue medium'>Create Ticket</span>" +  
-					"</div>" +
-			"</div>";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Open a Ticket");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Create a New Ticket" , "", "", "");
-			$('#chatBox').append(ticketAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-function displayTicketSelection() {
-	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-				"<span onClick = 'displayTicketForm()' style = 'margin-bottom: 5px;' class='blue medium'>Open a Ticket</span>" +  
-				"<span onClick = 'viewTicket()'class='blue medium'>My Tickets</span>" +  
-			"</div>";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "SonicChat Ticket System");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Choose an Option" , "", "", "");
-			$('#chatBox').append(awayAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-function sendTicket() {
-	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val()};
-			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/DataAccess/recieveTicket/",
-				dataType: 'jsonp',
-				crossDomain:true,
-				jsonpCallback: "jsonCallbackTicket",
-				data: data,
-				scriptCharset: 'UTF-8',
-				  success: function(data) {
-					// Nothing
-			}});
-	displayLoading("#chatMessageBlock", true);
-	return true;
-	} else {
-		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
-	}
-}
-
-function jsonCallbackTicket(data) {
-	displayLoading("#chatMessageBlock", false); // kill loading animation
-	var custName = "";
-	if ($('#ChatNameInput').val() != "") {
-		custName = $('#ChatNameInput').val() + ", ";
-		} else {
-		custName = "";
-		}
-	
-		 var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 0px; border-radius: 5px;'>" +
-							"<p  style = 'padding: 4px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-								"<span style = 'color: #6D6D6D!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'>Your Ticket Number is: <span style = 'color: #59AFFF!important;'>" + data.result + "</span></span>" + 
-								custName + "We are sorry you are facing issues. You will receive an email shortly, and we will get back to you ASAP. <br><br> Please keep your issue number so you can fast track your solution." +
-								"If you happen to lose your number, you can also use your email, <span style = 'color: #59AFFF!important; font-weight: 590!important; '>" + $("#ChatContactInput").val() + "</span> to retrieve issues in this chat box from the Ticket section."
-							"</p>" +			
-						"</div>";
-	  
-	    $("#chatMessageBlock").append(htmlItem);
-		$('#chatMessageBlock').fadeIn();
-		displayBanner("Ticket Created" , "", "", "");
-}
-
-function viewTicket() {
-			// Change the chat box height and width 
-		$("#chatBox").animate({height:'250px', width:'700px'});
-		$("#chatContainer").animate({width:'340px'});
-		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-								"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
-								"You can view your ticket status by entering your ticket number or email address below.</p>" +
-								"<input id = 'ChatNameInput' type='text' placeholder='Enter ticket number or email' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
-								"<span onClick = 'getTickets()'class='blue medium'>Find Ticket</span>" +  
-							"</div>" +
-						"<div id = 'messageSentBlock' style = '  display: none;  width: 95%;important; padding-top: 2px;important; margin: auto;important;'>" +  "</div> ";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "My Tickets");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("View My Tickets" , "", "", "");
-			$('#chatBox').append(ticketAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-function getTickets() {
-displayBanner("*Ticket or Email not found. ", "",  "#FF0000", "12px");
-$('#ChatNameInput').val(""); // Clear the input field
-}
-
-
-// ===============================  ANSWERBASE TILE =============================== 
-
-function displayAnswerBase() {
-		// Change the chat box height and width 
-		$("#chatBox").animate({height:'250px', width:'700px'});
-		$("#chatContainer").animate({width:'340px'});
-	
-	var defaultIntro = "Search for information on our products or services, for example, 'Why is SonicChat so awesome?'";
-	var defaultQuestion = "Hello! Ask me anything." 
-	var answerAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important; margin: auto!important; padding-top: 3px!important;  display: none; '>" + 
-							"<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
-							"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + defaultQuestion + "&#34; </span>" + 
-							defaultIntro + 
-							"</p>" +			
-							"</div>" +
-						"</div>";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', false);
-			$("#messageInput").attr("placeholder", "Search... (Enter to Send)");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			
-			changeChatTopMessage("Search", siteName, true);
-
-			displayBanner("AnswerBase Search" , "", "", "");
-			$('#chatBox').append(answerAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-
-			$("#chatMessageBlock").fadeIn(400);
-			
-			// This allows searches to AB
-			$("#messageInput").keyup(function(event){
-				if(event.keyCode == 13){ // Key code for enter button
-					if ($('#messageInput').val().trim() != "") {
-						displayLoading("#chatMessageBlock", true);
-						displayBanner("AnswerBase Search" , "", "", "");
-						requestAnswer($('#messageInput').val().trim());
-						$("#messageInput").val(""); // Reset input to empty
-					} else {
-						displayBanner("*Please enter a valid question.", "",  "#FF0000", "12px");
-					}
-				}
-			}); 			
-}
-
-// ******** Gets answers from AnswerBase ********
-function requestAnswer(question) {
-	// Function is dedicated to see if services is in after hours and/or there are even an active host, 
-		$.ajax({
-			url: "http://sonicchat.elasticbeanstalk.com/DataAccess/quickSearchWidget/" + siteID + ":" + question,
-			dataType: 'jsonp',
-			crossDomain:true,
-			jsonpCallback: "jsonCallbackAnswers",
-			scriptCharset: 'UTF-8',
-			success: function(data) {
-			// Nothing for now
-		}});						
-}
-
-function jsonCallbackAnswers(data) {	
-	$('#chatMessageBlock').html(""); // Clear the chat box first
-	displayBanner("AnswerBase Search" , "", "", "");
-	var htmlItem = "";
-	if (data.length > 0) {
-		data.forEach(function(object) {
-		  console.log(object.answer);
-		  var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
-								"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-									"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + object.question + "&#34; </span>" + 
-									object.answer + 
-								"</p>" +			
-							"</div>";
-							$("#chatMessageBlock").append(htmlItem);
-		});
-	} else {
-		htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
-						"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
-							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + "No Results" + "&#34; </span>" + 
-								"Looks like we don't have an answer for that question, ask something else." + 
-						"</p>" +			
-					"</div>";
-						 $("#chatMessageBlock").append(htmlItem);
-	}
-}
-
-function AnswerbaseSearchYesNo() {
-	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-						"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
-						"You can search our AnswerBase for help in this widget while you browse.</p>" +
-						"<span onClick = 'displayAnswerBase()' style = 'margin-bottom: 5px;' class='blue medium'>Search AnswerBase</span>" +  
-						"<span onClick = 'itemSelected(2)' class='blue medium'>Message Us</span>" +  
-					"</div>";
-			
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Get in Touch.");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Live person not available" , "", "", "");
-			$('#chatBox').append(awayAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-// ===============================  FEEDBACK V1 TILE =============================== 
-
-function displayFeedBackForm() {
-		// Change the chat box height and width 
-		$("#chatBox").animate({height:'250px', width:'700px'});
-		$("#chatContainer").animate({width:'340px'});
-		var ticketAppend = "<style>.jq-ry-container{position:relative;padding:0 5px;line-height:0;display:block;cursor:pointer}.jq-ry-container[readonly=readonly]{cursor:default}.jq-ry-container>.jq-ry-group-wrapper{position:relative;width:100%}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group{position:relative;line-height:0;z-index:10;white-space:nowrap}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group>svg{display:inline-block}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group.jq-ry-normal-group{width:100%}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group.jq-ry-rated-group{width:0;z-index:11;position:absolute;top:0;left:0;overflow:hidden}</style>" +
-		
-		"<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
-				"<div id = 'innerForm' style = 'display:block'>" +
-				
-				"<p style = 'font-size: 14px!important;  margin-bottom: 7px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
-				"Let us know what you think of SonicChat and leave us some feedback.</p>" +
-
-				"<div  style = 'margin-left: -3px; margin-top: 3px; margin-bottom: 4px; padding 0px!important;' id='rateYo'></div>" +
-				
-				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = 'font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 10px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
-				"<textarea id = 'chatMessage' placeholder='Your Feedback...' style = 'width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 60px!important; display:block!important;  padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
-
-			    "<span style = 'margin-top: 10px;' onClick = 'sendFeedBack()'class='blue medium'>Submit</span>" +  
-
-				"</div>" +
-			"</div>";
-			
-			$('#messageInput').val("");
-			$("#messageInput").prop('disabled', true);
-			$("#messageInput").attr("placeholder", "Feedback");
-
-			$('#chatBox').html(""); // Clear the chat box first
-			displayBanner("Feedback And Support" , "", "", "");
-			$('#chatBox').append(ticketAppend);
-			
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$("#chatMessageBlock").fadeIn(400);
-}
-
-function sendFeedBack() {
-	var $rateYo = $("#rateYo").rateYo();
-    var rating = $rateYo.rateYo("rating");
-	
-	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
-	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:"FEEDBACK", contact:$("#ChatContactInput").val(), message: "Rating: " + rating + " Feedback: " + $("#chatMessage").val()};
-			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/SonicChatV1/dataAccess/recieveFeedback",
-				dataType: 'jsonp',
-				crossDomain:true,
-				jsonpCallback: "jsonCallbackFeedback",
-				data: data,
-				scriptCharset: 'UTF-8',
-				  success: function(data) {
-					  // None for now
-			}});
-			displayBanner("Leave us a message" , "", "", "");
-	return true;
-	} else {
-		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
-	}
-}
-
-function jsonCallbackFeedback(data) {
-	
-	alert("WORKS YESSS");
-	
-}
-
-
-// =============================== STANDARD CHAT TILE V1.05 ===============================
-
-// ****** Start chat with host on users demand******
-function startChat() {
-	// When a user wants to start a chat start a socket
-	if (!initiatedChat && !away) {
-		connectToHost(); 
-	} 
-}
-
+// =============================== Following methods connect and interact with the server for WS ops ===============================
 function connectToHost() {	
 	// Connect to the socket server
 	webSocket = $.gracefulWebSocket(serverAddress + ":" + port);
@@ -908,6 +248,7 @@ function appendMessageOut(message) {
 	$('#chatBox').scrollTop($('#chatBox').prop("scrollHeight"));
 }
 
+// =============================== Following methods change and add display elements to the chat box ===============================
 function displayNowTyping(show){
 	if (show && dotTimer == null) {
 		$('#chatBox').append('<p id = "typingP" style = "font-family: Arial, Helvetica, sans-serif;important; font-weight: 600!important;  margin: 3px 3px 6px 5px!important; color: #949494!important; font-size: 14px!important; line-height: 100%!important;"> </p>');	
@@ -942,10 +283,630 @@ function displayNowTyping(show){
 	}
 }
 
-// END OF DYNAMIC TILE APPEND
+function displayBanner(message, messageSmall, color, size) {
+	if (color == "") {
+		color = "#616161";
+	}
+	if (size == ""){
+		size = "15px";
+	}
+	if ($('#waitingText').length == 0) {
+		$('#chatBox').append("<div id = 'waitingText' style = 'font-color: #000000!important; line-height: 105%!important; border: 0px!important; height: 21px!important; margin-top: 8px!important; margin-bottom: 2px!important;  font-family: Arial, Helvetica, sans-serif!important; padding: 0px!important; margin-bottom: 7px!important; font-weight: 600!important; text-align: center!important; font-size: 14px!important;'><span style = 'font-weight: 550!important; font-family: Arial, Helvetica, sans-serif!important;  color: #616161!important; margin: 0px!important; padding: 0px!important; font-size: 15px!important;'>" + message+ "</span><span style = 'font-weight: 500!important; color: #616161!important; font-family: Arial, Helvetica, sans-serif!important;  margin: 0px!important; padding: 0px!important;'> " + messageSmall + "</span> <hr style = 'width: 95%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'></div>");
+	} else {
+		$('#waitingText').html("<span style = 'font-weight: 600!important; font-family: Arial, Helvetica, sans-serif!important; color:" + color + "!important; margin: 0px!important; padding: 0px!important; font-size:" + size + "!important;'>" + message + "</span> <span style = 'font-weight: 500!important; font-family: Arial, Helvetica, sans-serif!important;  margin: 0px!important; padding: 0px!important;'> " + messageSmall + "</span> <hr style = 'width: 95%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'>");	
+	}
+}
 
- // =============================== 3ED PARTY LIBRARY SUPPORT ===============================
+function changeChatTopMessage(message, messageTwo, backVis, navUp) {
+$('#chatTopMessage').html('<span style = "color: #63B8FD!important; font-weight: 600!important; ">' + message + '</span> </b> <span style = "color: #E9E9E9!important; font-weight: 600!important; ">' + messageTwo + '</span>  <img  id = "chatArrow"  class = "arrowImg"  src = "http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png"> <span id = "backimg" style = "color: #c1c1c1!important; display: none; margin: 0px!important; padding: 0px!important; padding-right: 15px!important; float: right; font-size: 18px;" class="icon fa-hand-o-left"></span>');
+	if (backVis) {
+		$("#backimg").css("display", "inline-block");
+	} else if (!backVis){
+		$("#backimg").css("display", "none");
+	}
+	
+	if (navUp) {
+		$('#chatArrow').attr('src', 'http://sonicchat.elasticbeanstalk.com/static/images/nav-up.png');
+	} else {
+		$('#chatArrow').attr('src', 'http://sonicchat.elasticbeanstalk.com/static/images/nav-down.png');
+	}
+	
+	// Reset chat message input
+	$('#messageInput').val("");
+	
+}
 
+// Main item selection picker
+function itemSelected(item) {
+	
+	// Unbind any keyup events to avoid double sends
+	$('#messageInput').unbind('keyup');
+	
+	if (item == 1) {
+		// Live chat
+		if (!away) {
+		connectToHost(); 
+		} else {
+		displayChatChoice();
+		}
+		itemDisplay = false;
+		changeChatTopMessage("Chat with", siteName, true);
+	} else if(item == 2) {
+		// Message
+		displayMessageForm();
+		changeChatTopMessage("Contact Us", "", true);
+		itemDisplay = false;
+	} else if (item == 3) {
+		displayTicketSelection();
+		changeChatTopMessage("Ticket Support", "", true);
+		itemDisplay = false;
+	} else if (item == 4) {
+		window.open("/about.html", "_self");
+	   $("#itemBlock").fadeOut(600);
+	} else if (item == 5) {
+		// Google Map of location
+		displayMap();
+		changeChatTopMessage("Map View", "", true);
+		itemDisplay = false;
+	} else if (item == 6) {
+		// Answerbase 
+		displayAnswerBase();
+		itemDisplay = false;
+	} else if (item == 7) {
+		displayFeedBackForm();
+		changeChatTopMessage("Feedback and", "Support", true);
+		itemDisplay = false;
+		$(function () {
+		  $("#rateYo").rateYo({
+			rating: 2,
+			fullStar: true,
+			starWidth: "19px"
+		  });
+		});	
+	}
+	
+	// Hide item selection block if left visible
+	if($('#itemBlock').length == 0){
+		$("#itemBlock").css("display", "none");
+	}
+}
+
+/* =============================== DISPLAY: Append and Display functions below! ===============================
+The following functions request data from the server
+and handle the data in a callback */
+
+
+function displayMap(){
+		displayLoading("chatBox", true);
+		var cord = "Downtown cleveland ohio" // coordinates of map location
+		// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var map = "<div  id  = 'mapDiv' style = 'width: 100%!important; height: 100%!important; overflow-y: hidden; overflow-x: hidden;  margin: auto!important;  padding-top: 0px!important;  display: none; '>" + 					
+					"<iframe  id = 'mapFrame' frameborder='0' style='z-index: 1000; border:0; width:100%; height:100%;'src='https://www.google.com/maps/embed/v1/place?key=AIzaSyCT0nwdHgOiASwTY84VMt589mE184xTJ58 &q=" + cord + "' allowfullscreen></iframe>" + 
+				"</div>";
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Viewing our location.");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			$('#chatBox').append(map);
+						
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#mapDiv").fadeIn(400);
+}
+
+
+
+function displayMessageForm() {
+		var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+						"<div id = 'innerForm' style = 'display:block'>" +
+								"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
+								"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = '  font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
+								"<textarea id = 'chatMessage' placeholder='Leave a Message...' style = '  width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 50px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
+								"<span onClick = 'sendAfterHourMessage()'class='blue medium'>Send Message</span>" +  
+							"</div>" +
+						"</div> ";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Leave us a detailed message");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Leave us a message" , "", "", "");
+			$('#chatBox').append(awayAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+
+function displayTicketForm() {
+		// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+				"<div id = 'innerForm' style = 'display:block'>" +
+				"<select id = 'productListD' style = 'font-size: 15px!important; background-color: #F8F8F8!important; -moz-appearance:menulist!important -webkit-appearance:menulist!important; appearance:menulist!Important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; padding: 0px!important;  height: 25px!important; display:block!important; width: 100%!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;' ><option value='volvo'>Select a Product</option><option value='chat'>Implementation</option><option value='answerbase'>My AnswerBase</option><option value='chat'>Chat System</option><option value='tiles'>Tiles</option><option value='other'>Other</option> </select>" +			
+				"<input id = 'ChatNameInput' type='text' placeholder='Your Name' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
+				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = 'font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
+				"<textarea id = 'chatMessage' placeholder='Describe your issue here...' style = 'width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 70px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
+				"<span onClick = 'sendTicket()'class='blue medium'>Create Ticket</span>" +  
+					"</div>" +
+			"</div>";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Open a Ticket");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Create a New Ticket" , "", "", "");
+			$('#chatBox').append(ticketAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+
+function displayTicketSelection() {
+	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+				"<span onClick = 'displayTicketForm()' style = 'margin-bottom: 5px;' class='blue medium'>Open a Ticket</span>" +  
+				"<span onClick = 'viewTicket()'class='blue medium'>My Tickets</span>" +  
+			"</div>";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "SonicChat Ticket System");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Choose an Option" , "", "", "");
+			$('#chatBox').append(awayAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+function viewTicket() {
+			// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var ticketAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+								"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
+								"You can view your ticket status by entering your ticket number or email address below.</p>" +
+								"<input id = 'ChatNameInput' type='text' placeholder='Enter ticket number or email' style = ' font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 0px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'> " +
+								"<span onClick = 'getTickets()'class='blue medium'>Find Ticket</span>" +  
+							"</div>" +
+						"<div id = 'messageSentBlock' style = '  display: none;  width: 95%;important; padding-top: 2px;important; margin: auto;important;'>" +  "</div> ";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "My Tickets");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("View My Tickets" , "", "", "");
+			$('#chatBox').append(ticketAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+function getTickets() {
+displayBanner("*Ticket or Email not found. ", "",  "#FF0000", "12px");
+$('#ChatNameInput').val(""); // Clear the input field
+}
+
+function displayAnswerBase() {
+		// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+	
+	var defaultIntro = "Search for information on our products or services, for example, 'Why is SonicChat so awesome?'";
+	var defaultQuestion = "Hello! Ask me anything." 
+	var answerAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important; margin: auto!important; padding-top: 3px!important;  display: none; '>" + 
+							"<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
+							"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + defaultQuestion + "&#34; </span>" + 
+							defaultIntro + 
+							"</p>" +			
+							"</div>" +
+						"</div>";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', false);
+			$("#messageInput").attr("placeholder", "Search... (Enter to Send)");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			
+			changeChatTopMessage("Search", siteName, true);
+
+			displayBanner("AnswerBase Search" , "", "", "");
+			$('#chatBox').append(answerAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+
+			$("#chatMessageBlock").fadeIn(400);
+			
+			// This allows searches to AB
+			$("#messageInput").keyup(function(event){
+				if(event.keyCode == 13){ // Key code for enter button
+					if ($('#messageInput').val().trim() != "") {
+						displayLoading("#chatMessageBlock", true);
+						displayBanner("AnswerBase Search" , "", "", "");
+						requestAnswer($('#messageInput').val().trim());
+						$("#messageInput").val(""); // Reset input to empty
+					} else {
+						displayBanner("*Please enter a valid question.", "",  "#FF0000", "12px");
+					}
+				}
+			}); 			
+}
+
+function displayChatChoice() {
+	var awayAppend = "<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+						"<p style = 'font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
+						"You can search our AnswerBase for help in this widget while you browse.</p>" +
+						"<span onClick = 'displayAnswerBase()' style = 'margin-bottom: 5px;' class='blue medium'>Search AnswerBase</span>" +  
+						"<span onClick = 'itemSelected(2)' class='blue medium'>Message Us</span>" +  
+					"</div>";
+			
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Get in Touch.");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Live person not available" , "", "", "");
+			$('#chatBox').append(awayAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+function displayFeedBackForm() {
+		// Change the chat box height and width 
+		$("#chatBox").animate({height:'250px', width:'700px'});
+		$("#chatContainer").animate({width:'340px'});
+		var ticketAppend = "<style>.jq-ry-container{position:relative;padding:0 5px;line-height:0;display:block;cursor:pointer}.jq-ry-container[readonly=readonly]{cursor:default}.jq-ry-container>.jq-ry-group-wrapper{position:relative;width:100%}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group{position:relative;line-height:0;z-index:10;white-space:nowrap}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group>svg{display:inline-block}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group.jq-ry-normal-group{width:100%}.jq-ry-container>.jq-ry-group-wrapper>.jq-ry-group.jq-ry-rated-group{width:0;z-index:11;position:absolute;top:0;left:0;overflow:hidden}</style>" +
+		
+		"<div  id  = 'chatMessageBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+				"<div id = 'innerForm' style = 'display:block'>" +
+				
+				"<p style = 'display: block!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
+				"Let us know what you think of SonicChat.</p>" +
+				
+					"<p style = 'font-size: 14px!important; display: inline-block!important; margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 100%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #4D4D4D;important; '>" + 
+				"Your Experience: </p>" +
+				
+				
+				"<div  style = ' display: inline-block!important; margin-left: 0px!important; padding 0px!important; margin-bottom: 5px!important  margin-top: 5px!important;' id='rateYo'>Your Experience: </div> <br>" + 
+				"<input id = 'ChatContactInput' type='text' placeholder='Your Email' style = 'font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 25px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important;'>" + 
+				"<textarea id = 'chatMessage' placeholder='Your Feedback...' style = 'width: 100%; resize: none; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; font-size: 14px!important; height: 70px!important; display:block!important; width: 100%!important; padding-top: 2px!important; padding-bottom: 2px!important; padding-left: 3px!important;  margin-bottom: 5px!important;  margin-top: 4px!important; border: 1px solid #A3A3A3!important; color: #000000!important;  border-radius: 0px!important; '></textarea>" +
+
+
+			    "<span style = 'margin-top: 10px;' onClick = 'sendFeedBack()'class='blue medium'>Submit</span>" +  
+
+				"</div>" +
+			"</div>";
+			
+			$('#messageInput').val("");
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Open a Ticket");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Create a New Ticket" , "", "", "");
+			$('#chatBox').append(ticketAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#chatMessageBlock").fadeIn(400);
+}
+
+function sendFeedBack() {
+	   /* get rating */
+	var $rateYo = $("#rateYo").rateYo();
+    var rating = $rateYo.rateYo("rating");
+    window.alert("Its " + rating + " Yo!");
+	
+}
+						
+function displayItemSelection() {
+	iconColor = "#63B8FD";
+	tileColor = "#f8f8f8";
+	tileHoverColor = "#DFF1FF";
+	var awayAppend =  "<div  id  = 'itemBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+					
+						"<div class = 'wedge' onClick = 'itemSelected(1)' style = 'float:left;  width:49%!important; margin-bottom: 5px!important; height: 72px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-comments'><p style = 'font-size: 15px;  cursor: default;  margin: 0px;  line-height: 100%!important;  padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat<p></div>" +
+						"</div>" +
+						
+						"<div class = 'wedge' onClick = 'itemSelected(6)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-search '><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>AnswerBase<p></div>" +
+						"</div>" +	
+						
+								
+						"<div class = 'wedge' onClick = 'itemSelected(3)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";'>" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-ticket'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Ticket<p></div>" +
+						"</div>" +
+																	
+						"<div class = 'wedge' onClick = 'itemSelected(5)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-map-marker'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>Where are we?<p></div>" +
+						"</div>" +	
+						
+						"<div class = 'wedge' onClick = 'itemSelected(2)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-envelope'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Message Us<p></div>" +
+						"</div>" +
+						
+						"<div class = 'wedge' onClick = 'itemSelected(7)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-star-half-o'><p style = 'font-size: 15px; margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default;  '>Feedback<p></div>" +
+						"</div>" +
+				
+					
+						"<div class = 'wedge' onClick = 'itemSelected(4)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
+						"<div style = 'color:" + iconColor +"; text-align: center;  margin: auto; padding-top: 14px; font-size: 31px;' class='icon fa-question-circle'><p style = 'font-size: 15px; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default;  '>About Me<p></div>" +
+						"</div>" +	
+
+					"</div> ";
+					
+					// On hover for items after dom load append
+					$(document).on('mouseover', '.wedge', function(e) {
+						$(this).css('background-color',  tileHoverColor);
+					});
+					
+					$(document).on('mouseout', '.wedge', function(e) {
+						$(this).css('background-color', tileColor);
+					});
+					
+			$("#messageInput").prop('disabled', true);
+			$("#messageInput").attr("placeholder", "Help and Support");
+
+			$('#chatBox').html(""); // Clear the chat box first
+			displayBanner("Welcome, choose an option" , "", "", "");
+			$('#chatBox').append(awayAppend);
+			
+			// IF IE: place-holder support
+			if (navigator.userAgent.indexOf('MSIE') > -1){
+				$('input, textarea').placeholder({customClass:'my-placeholder'});
+			}
+			
+			$("#itemBlock").fadeIn(400);
+}
+
+var spinner; // Global controlled loading spinner 
+function displayLoading(element, show) {
+	if (show) {
+		if ($("#innerForm").length) {
+			$("#innerForm").hide();
+		}
+		$(element).children().hide(); 
+		var opts = { lines: 10, length: 17 , width: 2, radius: 0 , scale: 1 , corners: 0.5, color: '#000',
+		opacity: 0.2 , rotate: 89 , direction: 1 , speed: 1.1 , trail: 60 , fps: 20 , zIndex: 2e9 ,
+		className: 'spinner' , top: '50%', left: '50%', shadow: false, hwaccel: false , position: 'absolute' };
+		if (spinner == null) {
+		spinner = new Spinner(opts).spin();
+		} else {
+		spinner.spin();
+		}
+		$(element).append(spinner.el);
+	} else {
+		// Please clear element in your own. Use div ID 'innerForm to keep from elements values
+		spinner.stop();
+		$("#innerForm").hide();
+	}
+}
+
+// ******** COOKIE FUNCTIONS ********
+function setCookie(cname,cvalue,exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+    document.cookie = cname+"="+cvalue+"; "+expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+/* =============================== AJAX REQUEST: Request Data BELOW ===============================
+The following functions request data from the server
+and handle the data in a callback */
+
+
+// ******** FORM MESSAGE FUNCTIONS ******** 
+function sendAfterHourMessage() {
+	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
+	displayLoading("#chatMessageBlock", true); // kill loading animation
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val()};
+			$.ajax({
+				url: "http://localhost:8080/SonicChatV1/dataAccess/recieveAwayMessage",
+				dataType: 'jsonp',
+				crossDomain:true,
+				jsonpCallback: "jsonCallbackAwayMessage",
+				data: data,
+				scriptCharset: 'UTF-8',
+				  success: function(data) {
+					// Nothing
+			}});
+			displayBanner("Leave us a message" , "", "", "");
+	return true;
+	} else {
+		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
+	}
+}
+function jsonCallbackAwayMessage() {
+		displayBanner("Message Sent" , "", "", "");
+		displayLoading("#chatMessageBlock", false); // kill loading animation
+		if ($('#ChatNameInput').val() != "") {
+		custName = $('#ChatNameInput').val();
+		} else {
+		custName = "valued customer";
+		}
+		 var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 0px; border-radius: 5px;'>" +
+							"<p  style = 'padding: 2px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+								"<span style = 'color: #59AFFF!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'>Thank you, " + custName + "</span>" + 
+								"Your message has been sent and will get back with you shortly at " + $("#ChatContactInput").val() +
+							"</p>" +			
+						"</div>";
+	  
+	    $("#chatMessageBlock").append(htmlItem);
+		$('#chatMessageBlock').fadeIn();
+}
+
+// =============================== FORM MESSAGE FUNCTIONS =============================== 
+function sendTicket() {
+	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val()};
+			$.ajax({
+				url: "http://localhost:8080/SonicChatV1/DataAccess/recieveTicket/",
+				dataType: 'jsonp',
+				crossDomain:true,
+				jsonpCallback: "jsonCallbackTicket",
+				data: data,
+				scriptCharset: 'UTF-8',
+				  success: function(data) {
+					// Nothing
+			}});
+	displayLoading("#chatMessageBlock", true);
+	return true;
+	} else {
+		displayBanner("*Please use a valid email address", "",  "#FF0000", "12px");
+	}
+}
+
+function jsonCallbackTicket(data) {
+	displayLoading("#chatMessageBlock", false); // kill loading animation
+	var custName = "";
+	if ($('#ChatNameInput').val() != "") {
+		custName = $('#ChatNameInput').val() + ", ";
+		} else {
+		custName = "";
+		}
+	
+		 var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 0px; border-radius: 5px;'>" +
+							"<p  style = 'padding: 4px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+								"<span style = 'color: #6D6D6D!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'>Your Ticket Number is: <span style = 'color: #59AFFF!important;'>" + data.result + "</span></span>" + 
+								custName + "We are sorry you are facing issues. You will receive an email shortly, and we will get back to you ASAP. <br><br> Please keep your issue number so you can fast track your solution." +
+								"If you happen to lose your number, you can also use your email, <span style = 'color: #59AFFF!important; font-weight: 590!important; '>" + $("#ChatContactInput").val() + "</span> to retrieve issues in this chat box from the Ticket section."
+							"</p>" +			
+						"</div>";
+	  
+	    $("#chatMessageBlock").append(htmlItem);
+		$('#chatMessageBlock').fadeIn();
+		displayBanner("Ticket Created" , "", "", "");
+}
+
+
+
+// ******** CHECKS TO SEE IF A HOST IS ACTIVE FOR THE SITE ********
+function testActiveHost() {
+	if (!away) {
+		// Function is dedicated to see if services is in after hours and/or there are even an active host, 
+			$.ajax({
+				  url: "http://sonicchat.elasticbeanstalk.com/DataAccess/testHostActive/" + siteID,
+				  dataType: 'jsonp',
+				  crossDomain:true,
+				  jsonpCallback: "jsonCallback",
+				  scriptCharset: 'UTF-8',
+				  success: function(data) {
+					//alert(result[0].description);
+			}});						
+	}
+}
+
+function jsonCallback(data) {
+var testVal = data.result;
+	if (testVal == "TRUE" && getCookie("connectionID") != "") {
+		// Keeps alive the concurrent chat between host and this client
+		away = false;
+		connectToHost(); 
+	} else if(testVal == "FALSE") {
+		away = true;
+		displayItemSelection();
+	} else if (testVal == "TRUE") {
+		away = false;
+		displayItemSelection();	
+	} else {
+	// TODO: Error response from server, create a fallback
+	}
+}
+
+// ******** Gets answers from AnswerBase ********
+function requestAnswer(question) {
+	// Function is dedicated to see if services is in after hours and/or there are even an active host, 
+		$.ajax({
+			url: "http://sonicchat.elasticbeanstalk.com/DataAccess/quickSearchWidget/" + siteID + ":" + question,
+			dataType: 'jsonp',
+			crossDomain:true,
+			jsonpCallback: "jsonCallbackAnswers",
+			scriptCharset: 'UTF-8',
+			success: function(data) {
+			// Nothing for now
+		}});						
+}
+
+function jsonCallbackAnswers(data) {	
+	$('#chatMessageBlock').html(""); // Clear the chat box first
+	displayBanner("AnswerBase Search" , "", "", "");
+	var htmlItem = "";
+	if (data.length > 0) {
+		data.forEach(function(object) {
+		  console.log(object.answer);
+		  var htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
+								"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+									"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + object.question + "&#34; </span>" + 
+									object.answer + 
+								"</p>" +			
+							"</div>";
+							$("#chatMessageBlock").append(htmlItem);
+		});
+	} else {
+		htmlItem =  "<div id = 'answerBlock' style = 'width: 100%; margin-top: 5px; background-color: #F8F8F8; border-radius: 5px;'>" +
+						"<p  style = 'padding: 6px!important; font-size: 14px!important;  margin-bottom: 12px!important; margin-top: -2px!important;  line-height: 105%!important; font-family: Arial, Helvetica, sans-serif;important; font-style: normal!important; margin: 0px;important; color: #565656;important; '>" + 
+							"<span style = 'color: #63B8FD!important; display: block; border-radius: 2px!important; margin-bottom: 6px!important; font-weight: 600!important;'> &#34;" + "No Results" + "&#34; </span>" + 
+								"Looks like we don't have an answer for that question, ask something else." + 
+						"</p>" +			
+					"</div>";
+						 $("#chatMessageBlock").append(htmlItem);
+	}
+}
+
+ // =============================== 3ed party library support below. When updating or adding new libraries always check IE support! ===============================
  // ******** WebSocket with graceful degradation - jQuery plugin VERSION 0.1 ********
 (function($){$.extend({gracefulWebSocket:function(url,options){this.defaults={keepAlive:false,autoReconnect:false,fallback:true,fallbackSendURL:url.replace('ws:','http:').replace('wss:','https:'),fallbackSendMethod:'POST',fallbackPollURL:url.replace('ws:','http:').replace('wss:','https:'),fallbackPollMethod:'GET',fallbackOpenDelay:100,fallbackPollInterval:3000,fallbackPollParams:{}};var opts=$.extend({},this.defaults,options);function FallbackSocket(){var CONNECTING=0;var OPEN=1;var CLOSING=2;var CLOSED=3;var pollInterval;var openTimout;var fws={readyState:CONNECTING,bufferedAmount:0,send:function(data){var success=true;$.ajax({async:false,type:opts.fallbackSendMethod,url:opts.fallbackSendURL+'?'+$.param(getFallbackParams()),data:data,dataType:'text',contentType:"application/x-www-form-urlencoded; charset=utf-8",success:pollSuccess,error:function(xhr){success=false;$(fws).triggerHandler('error');}});return success;},close:function(){clearTimeout(openTimout);clearInterval(pollInterval);this.readyState=CLOSED;$(fws).triggerHandler('close');},onopen:function(){},onmessage:function(){},onerror:function(){},onclose:function(){},previousRequest:null,currentRequest:null};function getFallbackParams(){fws.previousRequest=fws.currentRequest;fws.currentRequest=new Date().getTime();return $.extend({"previousRequest":fws.previousRequest,"currentRequest":fws.currentRequest},opts.fallbackPollParams);}
 function pollSuccess(data){var messageEvent={"data":data};fws.onmessage(messageEvent);}
@@ -965,6 +926,6 @@ if(e(f,{position:d.position,width:0,zIndex:d.zIndex,left:d.left,top:d.top}),b&&b
 
 //rateYo V2.0.1, A simple and flexible star rating plugin -- http://prrashi.github.io/rateYo/
 !function(a){"use strict";function b(a,b,c){return a===b?a=b:a===c&&(a=c),a}function c(a,b,c){var d=a>=b&&c>=a;if(!d)throw Error("Invalid Rating, expected value between "+b+" and "+c);return a}function d(b,c){var d;return a.each(c,function(){return b===this.node?(d=this,!1):void 0}),d}function e(b,c){return a.each(c,function(a){if(b===this.node){var d=c.slice(0,a),e=c.slice(a+1,c.length);return c=d.concat(e),!1}}),c}function f(a){return"undefined"!=typeof a}function g(d,h){function i(a){f(a)||(a=h.rating);var b=a/I,c=b*K;b>1&&(c+=(Math.ceil(b)-1)*M),Q.css("width",c+"%")}function k(){N=J*h.numStars,N+=L*(h.numStars-1),K=J/N*100,M=L/N*100,d.width(N),i()}function l(a){return f(a)?(h.starWidth=h.starHeight=a,J=parseFloat(h.starWidth.replace("px","")),P.find("svg").attr({width:h.starWidth,height:h.starHeight}),Q.find("svg").attr({width:h.starWidth,height:h.starHeight}),k(),d):h.starWidth}function m(a){return f(a)?(h.spacing=a,L=parseFloat(h.spacing.replace("px","")),P.find("svg:not(:first-child)").css({"margin-left":a}),Q.find("svg:not(:first-child)").css({"margin-left":a}),k(),d):h.spacing}function n(a){return f(a)?(h.normalFill=a,P.find("svg").attr({fill:h.normalFill}),d):h.normalFill}function o(a){return f(a)?(h.ratedFill=a,Q.find("svg").attr({fill:h.ratedFill}),d):h.ratedFill}function p(b){if(!f(b))return h.numStars;h.numStars=b,I=h.maxValue/h.numStars,P.empty(),Q.empty();for(var c=0;c<h.numStars;c++)P.append(a(j)),Q.append(a(j));return l(h.starWidth),o(h.ratedFill),n(h.normalFill),m(h.spacing),i(),d}function q(a){return f(a)?(h.maxValue=a,I=h.maxValue/h.numStars,h.rating>a&&E(a),i(),d):h.maxValue}function r(a){return f(a)?(h.precision=a,i(),d):h.precision}function s(a){return f(a)?(h.halfStar=a,d):h.halfStar}function t(a){return f(a)?(h.fullStar=a,d):h.fullStar}function u(a){var b=a%I,c=I/2,d=h.halfStar,e=h.fullStar;return e||d?(e||d&&b>c?a+=I-b:(a-=b,b>0&&(a+=c)),a):a}function v(a){var b=P.offset(),c=b.left,d=c+P.width(),e=h.maxValue,f=a.pageX,g=0;if(c>f)g=R;else if(f>d)g=e;else{var i=(f-c)/(d-c);if(L>0){i*=100;for(var j=i;j>0;)j>K?(g+=I,j-=K+M):(g+=j/K*I,j=0)}else g=i*h.maxValue;g=u(g)}return g}function w(a){var c=v(a).toFixed(h.precision),e=h.maxValue;c=b(parseFloat(c),R,e),i(c),d.trigger("rateyo.change",{rating:c})}function x(){i(),d.trigger("rateyo.change",{rating:h.rating})}function y(a){var b=v(a).toFixed(h.precision);b=parseFloat(b),H.rating(b)}function z(a,b)
-{h.onChange&&"function"==typeof h.onChange&&h.onChange.apply(this,[b.rating,H])}function A(a,b){h.onSet&&"function"==typeof h.onSet&&h.onSet.apply(this,[b.rating,H])}function B(){d.on("mousemove",w).on("mouseenter",w).on("mouseleave",x).on("click",y).on("rateyo.change",z).on("rateyo.set",A)}function C(){d.off("mousemove",w).off("mouseenter",w).off("mouseleave",x).off("click",y).off("rateyo.change",z).off("rateyo.set",A)}function D(a){return f(a)?(h.readOnly=a,d.attr("readonly",!0),C(),a||(d.removeAttr("readonly"),B()),d):h.readOnly}function E(a){if(!f(a))return h.rating;var e=a,g=h.maxValue;return"string"==typeof e&&("%"===e[e.length-1]&&(e=e.substr(0,e.length-1),g=100,q(g)),e=parseFloat(e)),c(e,R,g),e=parseFloat(e.toFixed(h.precision)),b(parseFloat(e),R,g),h.rating=e,i(),d.trigger("rateyo.set",{rating:e}),d}function F(a){return f(a)?(h.onSet=a,d):h.onSet}function G(a){return f(a)?(h.onChange=a,d):h.onChange}this.$node=d,this.node=d.get(0);var H=this;d.addClass("jq-ry-container");var I,J,K,L,M,N,O=a("<div/>").addClass("jq-ry-group-wrapper").appendTo(d),P=a("<div/>").addClass("jq-ry-normal-group").addClass("jq-ry-group").appendTo(O),Q=a("<div/>").addClass("jq-ry-rated-group").addClass("jq-ry-group").appendTo(O),R=0;this.rating=function(a){return f(a)?(E(a),d):h.rating},this.destroy=function(){return h.readOnly||C(),g.prototype.collection=e(d.get(0),this.collection),d.removeClass("jq-ry-container").children().remove(),d},this.method=function(a){if(!a)throw Error("Method name not specified!");if(!f(this[a]))throw Error("Method "+a+" doesn't exist!");var b=Array.prototype.slice.apply(arguments,[]),c=b.slice(1),d=this[a];return d.apply(this,c)},this.option=function(a,b){if(!f(a))return h;var c;switch(a){case"starWidth":c=l;break;case"numStars":c=p;break;case"normalFill":c=n;break;case"ratedFill":c=o;break;case"maxValue":c=q;break;case"precision":c=r;break;case"rating":c=E;break;case"halfStar":c=s;break;case"fullStar":c=t;break;case"readOnly":c=D;break;case"spacing":c=m;break;case"onSet":c=F;break;case"onChange":c=G;break;default:throw Error("No such option as "+a)}return c(b)},p(h.numStars),D(h.readOnly),this.collection.push(this),this.rating(h.rating)}function h(b){var c=g.prototype.collection,e=a(this);if(0===e.length)return e;var f=Array.prototype.slice.apply(arguments,[]);if(0===f.length)b=f[0]={};else{if(1!==f.length||"object"!=typeof f[0]){if(f.length>=1&&"string"==typeof f[0]){var h=f[0],i=f.slice(1),j=[];return a.each(e,function(a,b){var e=d(b,c);if(!e)throw Error("Trying to set options before even initialization");var f=e[h];if(!f)throw Error("Method "+h+" does not exist!");var g=f.apply(e,i);j.push(g)}),j=1===j.length?j[0]:a(j)}throw Error("Invalid Arguments")}b=f[0]}return b=a.extend(JSON.parse(JSON.stringify(k)),b),a.each(e,function(){var e=d(this,c);return e?void 0:new g(a(this),a.extend({},b))})}function i(){return h.apply(this,Array.prototype.slice.apply(arguments,[]))}var j='<?xml version="1.0" encoding="utf-8"?><svg version="1.1" id="Layer_1"xmlns="http://www.w3.org/2000/svg"viewBox="0 12.705 512 486.59"x="0px" y="0px"xml:space="preserve"><polygon id="star-icon"points="256.814,12.705 317.205,198.566 512.631,198.566 354.529,313.435 414.918,499.295 256.814,384.427 98.713,499.295 159.102,313.435 1,198.566 196.426,198.566 "/></svg>',k={starWidth:"32px",normalFill:"gray",ratedFill:"#63B8FD",numStars:5,maxValue:5,precision:1,rating:0,fullStar:!1,halfStar:!1,readOnly:!1,spacing:"0px",onChange:null,onSet:null};g.prototype.collection=[],window.RateYo=g,a.fn.rateYo=i}(jQuery);
+{h.onChange&&"function"==typeof h.onChange&&h.onChange.apply(this,[b.rating,H])}function A(a,b){h.onSet&&"function"==typeof h.onSet&&h.onSet.apply(this,[b.rating,H])}function B(){d.on("mousemove",w).on("mouseenter",w).on("mouseleave",x).on("click",y).on("rateyo.change",z).on("rateyo.set",A)}function C(){d.off("mousemove",w).off("mouseenter",w).off("mouseleave",x).off("click",y).off("rateyo.change",z).off("rateyo.set",A)}function D(a){return f(a)?(h.readOnly=a,d.attr("readonly",!0),C(),a||(d.removeAttr("readonly"),B()),d):h.readOnly}function E(a){if(!f(a))return h.rating;var e=a,g=h.maxValue;return"string"==typeof e&&("%"===e[e.length-1]&&(e=e.substr(0,e.length-1),g=100,q(g)),e=parseFloat(e)),c(e,R,g),e=parseFloat(e.toFixed(h.precision)),b(parseFloat(e),R,g),h.rating=e,i(),d.trigger("rateyo.set",{rating:e}),d}function F(a){return f(a)?(h.onSet=a,d):h.onSet}function G(a){return f(a)?(h.onChange=a,d):h.onChange}this.$node=d,this.node=d.get(0);var H=this;d.addClass("jq-ry-container");var I,J,K,L,M,N,O=a("<div/>").addClass("jq-ry-group-wrapper").appendTo(d),P=a("<div/>").addClass("jq-ry-normal-group").addClass("jq-ry-group").appendTo(O),Q=a("<div/>").addClass("jq-ry-rated-group").addClass("jq-ry-group").appendTo(O),R=0;this.rating=function(a){return f(a)?(E(a),d):h.rating},this.destroy=function(){return h.readOnly||C(),g.prototype.collection=e(d.get(0),this.collection),d.removeClass("jq-ry-container").children().remove(),d},this.method=function(a){if(!a)throw Error("Method name not specified!");if(!f(this[a]))throw Error("Method "+a+" doesn't exist!");var b=Array.prototype.slice.apply(arguments,[]),c=b.slice(1),d=this[a];return d.apply(this,c)},this.option=function(a,b){if(!f(a))return h;var c;switch(a){case"starWidth":c=l;break;case"numStars":c=p;break;case"normalFill":c=n;break;case"ratedFill":c=o;break;case"maxValue":c=q;break;case"precision":c=r;break;case"rating":c=E;break;case"halfStar":c=s;break;case"fullStar":c=t;break;case"readOnly":c=D;break;case"spacing":c=m;break;case"onSet":c=F;break;case"onChange":c=G;break;default:throw Error("No such option as "+a)}return c(b)},p(h.numStars),D(h.readOnly),this.collection.push(this),this.rating(h.rating)}function h(b){var c=g.prototype.collection,e=a(this);if(0===e.length)return e;var f=Array.prototype.slice.apply(arguments,[]);if(0===f.length)b=f[0]={};else{if(1!==f.length||"object"!=typeof f[0]){if(f.length>=1&&"string"==typeof f[0]){var h=f[0],i=f.slice(1),j=[];return a.each(e,function(a,b){var e=d(b,c);if(!e)throw Error("Trying to set options before even initialization");var f=e[h];if(!f)throw Error("Method "+h+" does not exist!");var g=f.apply(e,i);j.push(g)}),j=1===j.length?j[0]:a(j)}throw Error("Invalid Arguments")}b=f[0]}return b=a.extend(JSON.parse(JSON.stringify(k)),b),a.each(e,function(){var e=d(this,c);return e?void 0:new g(a(this),a.extend({},b))})}function i(){return h.apply(this,Array.prototype.slice.apply(arguments,[]))}var j='<?xml version="1.0" encoding="utf-8"?><svg version="1.1" id="Layer_1"xmlns="http://www.w3.org/2000/svg"viewBox="0 12.705 512 486.59"x="0px" y="0px"xml:space="preserve"><polygon id="star-icon"points="256.814,12.705 317.205,198.566 512.631,198.566 354.529,313.435 414.918,499.295 256.814,384.427 98.713,499.295 159.102,313.435 1,198.566 196.426,198.566 "/></svg>',k={starWidth:"32px",normalFill:"gray",ratedFill:"#f39c12",numStars:5,maxValue:5,precision:1,rating:0,fullStar:!1,halfStar:!1,readOnly:!1,spacing:"0px",onChange:null,onSet:null};g.prototype.collection=[],window.RateYo=g,a.fn.rateYo=i}(jQuery);
 
-//************ SonicChat 2015 - End of JS File ************
+//************ SonicChat 2015 - End of SonicChat JS File ************
