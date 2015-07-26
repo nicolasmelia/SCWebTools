@@ -1,0 +1,197 @@
+<html>
+<head>
+
+<!-- JQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<link rel="stylesheet" href="http://cdn.quilljs.com/0.19.14/quill.snow.css" />
+<!-- Quill library -->
+<script src="http://cdn.quilljs.com/latest/quill.js"></script>
+</head>
+
+	
+	<style>
+	
+	body {
+	background-color: #EBF7FF;
+	}
+	
+	#toolbar {
+		border: 1px solid #e5e5e5;
+	}
+	
+	#editor {
+    border: 1px solid #e5e5e5;
+	}
+	
+	.tags {
+	
+	}
+	
+	.tags:hover {
+	background-color: #FF8F8F;
+	font-color: white;
+	}
+	
+	
+	.blue {color: #d9eef7; background: #5ba0ff;} 
+	.blue:hover {background: #A2C9FF;}
+	.blue:active {color: #80bed6;background: -webkit-gradient(linear, left top, left bottom, from(#0078a5), to(#00adee));background: -moz-linear-gradient(top,  #0078a5,  #00adee);filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#0078a5', endColorstr='#00adee');}
+	.button:hover {text-decoration: none;}
+	.button:active {position: relative;top: 1px;}
+	.medium {font-size: 12px;margin:auto;display:block;outline: none;cursor: pointer;text-align: center;text-decoration: none;font: 14px/100% Arial, Helvetica, sans-serif;padding: .4em 1.5em .42em;text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2); box-shadow: 0 1px 2px rgba(0,0,0,.2);} 
+	.small {font-size: 6px;margin:auto;display:block;outline: none;cursor: pointer;text-align: center;text-decoration: none;font: 10px/100% Arial, Helvetica, sans-serif;padding: .4em 1.5em .42em;text-shadow: 0 1px 1px rgba(0,0,0,.3); -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2); box-shadow: 0 1px 2px rgba(0,0,0,.2);} 
+
+	
+	</style>
+
+	<body>
+	
+		<br>
+
+		<div style = "margin: auto; margin-top: 10px;  width: 850px;  display: block!important;  ">
+		<h1 style = "padding: 0px; color: #515151;  margin: 0px;">My <span style = "color: #5ba0ff;">Answer</span>Base</h2>
+						
+
+		<div style = "-webkit-box-shadow: 0 3px 4px rgba(0,0,0,.7);-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2); box-shadow: 0 1px 2px rgba(0,0,0,.2);   margin: auto; margin-top: 10px;  background-color: #F9F9F9;  width: 100%; display: block!important;  ">
+			
+			<br>	<br>
+				<div style = "width:550px; margin: 0px; display: inline-block;  padding-left: 55px; ">
+				
+				<b><p style = "color: #515151; margin-bottom: 5px; margin-top: 0px; ">Possible Question</p></b>
+				<textarea placeholder="Enter Question Here..."  rows="3" style = "width: 100%; margin: auto; display: block; resize: none; border: 1px solid #e5e5e5;"></textarea>
+				<br>
+				
+				<!-- Create the text editor -->
+				<b><p style = "color: #515151; margin-bottom: 5px; margin-top: 0px; ">Answer or Response</p></b>
+				<div id="toolbar" style = "width: 100%; margin: 0px; background-color: white;">
+				  <span class="ql-bold ql-format-button"></span>
+				  <span class="ql-italic ql-format-button"></span>
+				  <span class="ql-link ql-format-button"></span>
+				</div>
+
+				<div id="editor" style = "width: 100%; margin: 0px; height: 90px; background-color: white; padding: 4px;"> </div>
+				
+				<div style = "margin-left: 0px; float: left; width: 100%;"> 
+					<span  class='blue medium' style = "width: 150px;  margin-top: 10px; display: inline-block;">Add to Answer base</span>
+					<span class='blue medium' style = "width: 100px; margin-top: 10px; display: inline-block;">Clear</span>
+				</div>
+
+				</div>
+				
+			
+				
+				
+				<div style = "width: 180px; margin-left: 5px; display: inline-block; float: right;   padding-right: 55px; ">
+				
+				<b><p style = "color: #515151; margin-bottom: 5px; margin-top: 0px; ">Keywords</p></b>
+				<input id = "tag" style = 'width:75%; border: 1px solid #e5e5e5; margin-bottom: 5px; display: inline-block;'> </input> <span  class='blue small'  onClick = "addTag()" style = "display: inline-block; width: 10px;"><b>+</b></span>
+				
+				<div id = "tagList" style = "height: 195px;  overflow-y: scroll; border: 1px solid #e5e5e5;  background-color: white;"> 
+				
+				
+				</div>				
+				</div>
+				
+				
+				
+				<br><br>
+				
+			<div style = " padding-right: 55px;  padding-left: 55px; "> 
+			<b><p style = "color: #515151; margin-bottom: 5px; margin-top: 0px; ">My Current AnswerBase</p></b>
+
+					
+			<div style = "width: 100%; background-color: white; border: 1px solid #e5e5e5; height: 250px; overflow-y: scroll; display: block!important;">
+				
+			</div>
+			</div>
+			
+				<br>	
+			
+					<hr style = 'width: 90%!important; margin: auto!important; margin-top: 5px!important; border: 0!important; height: 0!important; border-top: 1px solid rgba(0, 0, 0, 0.1)!important; margin-bottom: 5px!important;  border-bottom: 1px solid rgba(255, 255, 255, 0.3)!important; padding: 0px;!important;'>
+
+			<br><br>
+		</div>
+		
+
+		
+			</div>
+
+		<br>
+		
+
+		<br>
+		
+		
+
+<!-- Initialize editor and toolbar -->
+<script>
+
+$( document ).ready(function() {
+
+	
+	$("#tag").keyup(function(event){
+		if(event.keyCode == 13){ // Key code for enter button
+			addTag();	
+		}
+	}); 
+	
+	
+});
+
+
+var tags = [];
+
+var editor = new Quill('#editor', {
+   modules: {
+    'toolbar': { container: '#toolbar' },
+    'link-tooltip': true
+  },
+  theme: 'snow',
+});
+
+
+function test() {
+alert(editor.getHTML());
+}
+
+function addTag() {
+	var duplicate = false;
+	for (var i = 0; i < tags.length; i++) {
+	   if (tags[i] == $('#tag').val().trim()) {
+			duplicate = true;
+	   }
+	}
+
+	if  ($('#tag').val().trim() != "" && $('#tag').val().trim().indexOf(" ") <= 0 && !duplicate) {
+		tags.push($('#tag').val().trim());
+		$('#tagList').append("<div class = 'tags' onClick = 'removeTag(" + $('#tag').val().trim() + ")' id ='" + $('#tag').val().trim() + "' style = 'cursor:default; padding-top: 2px; padding-left: 6px;  color: #30CCFF;'><b>" + $('#tag').val().trim() + "</b></div>" )
+		$('#tag').val("");
+	} else {	
+		if (duplicate) {
+				alert("You have already entered this keyword.");
+		} else {
+				alert("Please enter a valid keyword. *Keywords cannot contain spaces.");
+		}
+		$('#tag').val("");
+	}
+}
+
+function removeTag(id) {
+	for (var i=tags.length-1; i >= 0; i--) {
+		if (tags[i] == id.innerText) {
+			tags.splice(i, 1);
+			break;
+		}
+	}
+	
+	$(id).remove();
+}
+
+
+</script>
+		
+		
+	</body>
+
+
+</html>
