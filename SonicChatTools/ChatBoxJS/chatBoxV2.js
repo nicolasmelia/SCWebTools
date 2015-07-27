@@ -272,7 +272,7 @@ function itemSelected(item) {
 	} else if (item == 4) {
 		//window.open("/about.html", "_self");
 		changeChatTopMessage("About Me", "", true);
-		introducton();
+		startIntroducton();
 	} else if (item == 5) {
 		// Google Map of location
 		displayMap();
@@ -296,9 +296,6 @@ function itemSelected(item) {
 	} else if (item = 8) {
 		window.open("https://twitter.com/SonicChat", "_blank");
 	}
-	
-	
-	
 	
 	// Hide item selection block if left visible
 	if($('#itemBlock').length == 0){
@@ -337,14 +334,14 @@ function displayTileSelection() {
 							"<div style = 'color:" + iconColor +"; text-align: center;  line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-bullhorn'><p style = 'font-size: 15px!important;   margin: 0px; padding: 0px;  line-height: 100%!important;   margin-top: 6px!important;  color: #716F6F!important;  cursor: default; '>Feedback</p></div>" +
 							"</div>" +
 							
-							// LINK TILE --
+							// DEMO TILE
 							"<div id = 'aboutTile' class = 'wedge' onClick = 'itemSelected(4)' style = 'float:left;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
 							"<div style = 'color:" + iconColor +"; text-align: center;  line-height: 100%!important;   margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-question-circle'><p style = 'font-size: 15px!important; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default; '>About Me</p></div>" +
 							"</div>" +	
 							
 							// LINK TILE --
 							"<div class = 'wedge' onClick = 'itemSelected(8)' style = 'float:right;  width:49%!important; height: 72px!important; margin-bottom: 5px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
-							"<div style = 'color:" + "#c7c7c7" +"; position: relative; top: 4px; left: 4px; margin-bottom: -14px; line-height: 100%!important; font-size: 14px!important;' class='icon  fa-external-link'></div>" +
+							"<div style = 'color:" + "#c7c7c7" +"; position: relative; top: 4px; left: 4px; margin-bottom: -14px; line-height: 100%!important; font-size: 11px!important;' class='icon  fa-external-link'></div>" +
 							"<div style = 'color:" + iconColor +"; text-align: center;  line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-twitter'><p style = 'font-size: 15px!important; margin: 0px;   line-height: 100%!important;  padding: 0px; margin-top: 6px!important; color: #716F6F!important; cursor: default; '>Twitter</p></div>" +
 							"</div>" +	
 
@@ -638,10 +635,16 @@ function displayAnswerBase() {
 			$("#messageInput").keyup(function(event){
 				if(event.keyCode == 13){ // Key code for enter button
 					if ($('#messageInput').val().trim() != "") {
-						displayLoading("#chatMessageBlock", true);
-						displayBanner("AnswerBase Search" , "", "", "");
-						requestAnswer($('#messageInput').val().trim());
-						$("#messageInput").val(""); // Reset input to empty
+							// SonicChats.com specific, starts SonicChat intro
+							if ($('#messageInput').val().trim().toLowerCase() == "tell me about yourself") {
+								changeChatTopMessage("About Me", "", true);
+								startIntroducton();
+							} else {
+							displayLoading("#chatMessageBlock", true);
+							displayBanner("AnswerBase Search" , "", "", "");
+							requestAnswer($('#messageInput').val().trim());
+							$("#messageInput").val(""); // Reset input to empty
+							}
 					} else {
 						displayBanner("*Please enter a valid question.", "",  "#FF0000", "12px");
 					}
@@ -998,407 +1001,24 @@ function displayNowTyping(show, reset){
 	}
 }
 
-// =============================== Automated Introduction ===============================
-var timeouts = []; // Array of timers to kill if cancel pres
-function introducton() {
-	var styleP = "<style>" +
-					".typed-cursor{opacity:1;-webkit-animation:blink 0.7s infinite;-moz-animation:blink 0.7s infinite;animation:blink 0.7s infinite;}" +
-					 "@keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-webkit-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-moz-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}" + 
-				 "</style>";
-	
-	$('body').append(styleP); // Clear the chat box first
-
-	resetDemoBlock();
-	startPres();
-}
-
-function resetDemoBlock() {
-	itemDisplay = false;
-	// Reset height of chat box if changed
-	if ($("#chatBox").height() > 200) {
-		$("#chatContainer").animate({width:'290px'});
-		$("#chatBox").animate({height:'200px'});
-	}
-	var demoBlock = "<div  id  = 'demoBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: block; '>" + "</div>";
-			$('#chatBox').html(""); // Clear the chat box first
-			$('#chatBox').append(demoBlock);
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			} 
-}
-
-function startPres() {
-		// displayLoading("#chatBox", true);
-		presStarted = true;
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 10px; margin: auto; padding-top: 40px!important; font-size: 70px!important; display: none; '>" + 
-		"<img  id = 'logoImage2' src = 'https://s3-us-west-2.amazonaws.com/www.sonicchats.com/images/logoDark.png' style = 'display: block; margin: auto; width: 78%; margin-bottom: -15px; padding 0px!important; ' />" +
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-	
-				
-	$('#logoImage2').imgLoad(function(){
-		//spinner.stop();
-
-		//displayLoading("#chatBox", false);
-			$("#logo1").fadeIn(1000);
-			   $("#typedText").typed({
-            strings: [" ^1000 Hello, ^800 I'm " + "<span style = 'color: #59AFFF!important; margin-bottom: 6px!important; font-weight: 600!important;'>SonicChat</span>", "I'm simple to use", "All-In-One" , "And extremely versatile."],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				displayTilePres();
-			}, 
-        });
-});
-
-	
-}
-
-function displayTilePres() {
-	var timer = setInterval(function () {
-	resetDemoBlock();
-
-	iconColor = "#63B8FD";
-	tileColor = "#f8f8f8";
-	tileHoverColor = "#DFF1FF";
-	var tile =  "<div id = 'itemBlock' style = 'color: #63B8FD; text-align: center;  margin-bottom: 15px; padding-bottom: 15px; line-height: 100%!important; margin: auto; margin-top: 12px; padding-top: 15px!important; display: block;'" + 
-			
-					"<div style = 'width: 100%; margin-top: 0px;   display: inline-block; font-size: 16px; vertical-align: top; '>" +
-									"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-							"</div>" + 	
-					"</div>" +
-					
-					"<div class = 'wedge' id = 'sampTile' onClick = '' style = 'margin: auto; font-size: 31px!important; padding:0px!important; width:49%!important; margin-bottom: 5px!important; height: 72px!important;  display: none;  background-color:" + tileColor +";' >" +
-						"<div style = 'color:" + iconColor +"; text-align: center; line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-comments'><p style = 'font-size: 15px!important; cursor: default; margin: 0px;  line-height: 100%!important; padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat</p></div>" +
-						"</div>" +	
-					"</div> ";
-						
-			// IF IE: place-holder support
-			if (navigator.userAgent.indexOf('MSIE') > -1){
-				$('input, textarea').placeholder({customClass:'my-placeholder'});
-			}
-			
-			$('#demoBlock').append(tile);
-			$("#sampTile").fadeIn(700);
-					
-	   $("#typedText").typed({
-            strings: ["This is a tile. ^500 ", "When I'm clicked on, ^400 I open up ^500 "],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-			showChatTile();
-			}, 
-        });
-
-	clearInterval(timer); // Stop timer
-	}, 2200);		
-}
-
-function showChatTile() {
-	
-	// Automated icon Click
-	var timer22 = setInterval(function () {
-		$("#sampTile").css('background-color', '#DFF1FF');
-		clearInterval(timer22); // Stop timer
-	}, 1000);
-	
-	var timer33 = setInterval(function () {
-		$("#sampTile").css('background-color', '#f8f8f8');
-		clearInterval(timer33); // Stop timer
-	}, 1400);
-			
-	// start automated chat
-	var timer = setInterval(function () {
-		$('#chatBox').html(""); // Clear the chat box first
-		displayBanner("Now chatting with","SonicChat");
-		appendMessageIn("SonicChat", "");
-		clearInterval(timer); // Stop timer
-	}, 2200);
-	
-	var timer3 = setInterval(function () {
-		displayNowTyping(true, true);
-		clearInterval(timer3); // Stop timer
-	}, 3500);
-	
-	var timer7 = setInterval(function () {
-		displayNowTyping(false, false);
-		appendMessageIn("SonicChat", "  This is a chat tile!");
-		clearInterval(timer7); // Stop timer
-	}, 6500);
-	
-	var timer8 = setInterval(function () {
-		displayNowTyping(true, true);
-		clearInterval(timer8); // Stop timer
-	}, 8000);
-	
-	var timer4 = setInterval(function () {
-		displayNowTyping(false, false);
-		appendMessageOut("Wow, I can talk to my customers when I select this tile?");
-		clearInterval(timer4); // Stop timer
-	}, 10500);
-	
-	var timer9 = setInterval(function () {
-		displayNowTyping(true, true);
-		clearInterval(timer9); // Stop timer
-	}, 12500);
-	
-	var timer15 = setInterval(function () {
-		displayNowTyping(false, false);
-		appendMessageIn("SonicChat", " Yes you can!");
-		clearInterval(timer15); // Stop timer
-	}, 14000);
-	
-	var timer90 = setInterval(function () {
-		displayNowTyping(true, true);
-		clearInterval(timer90); // Stop timer
-	}, 16000);
-	
-	var timer10 = setInterval(function () {
-		displayNowTyping(false, false);
-		appendMessageIn("SonicChat", " Tiles allow you customize your widget with powerful functions. Lets take a closer look!");
-		clearInterval(timer10); // Stop timer
-	}, 18500);
-	
-	// End of automated chat
-	var timer11 = setInterval(function () {
-		showTiles();
-		clearInterval(timer11); // Stop timer
-	}, 21400);
-	
-}
-
-function showTiles() {
-	var timer = setInterval(function () {
-	$("#demoBlock").fadeOut(1000);
-	resetDemoBlock();
-	itemDisplay = true;
-	displayTileSelection();
-	changeChatTopMessage("About Me", "", true);
-	$("#chatBox").animate({
-	scrollTop: $('#aboutTile').offset().top
-	}, 12200);
-	
-	clearInterval(timer); // Stop timer
-	}, 3500);
-	
-	var timer2 = setInterval(function () {
-		resetDemoBlock();
-		ticketPres();
-		clearInterval(timer2); // Stop timer
-	}, 7700);
-}
-
-function ticketPres() {
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-th-large'>" + 
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -15px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-		$('#demoBlock').append(child);
-		$("#logo1").fadeIn(1000);
-				
-	   $("#typedText").typed({
-            strings: ["^1000 Choose tiles that fit your needs", "For example... ^500 ", "Allow customers to create tickets ^500 ", "Using the ticket tile. ^500 "],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				 showTicketPres();
-			}, 
-        });
-}
-
-function showTicketPres() {
-	var timer66 = setInterval(function () {
-		displayTicketSelection();
-		changeChatTopMessage("About Me", "", true);
-		itemDisplay = false;
-		displayTicketForm();
-		clearInterval(timer66); // Stop timer
-	}, 2000);
-	mapPres();
-}
-
-
-
-function mapPres() {
-var timer67 = setInterval(function () {
-		resetDemoBlock();
-
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 40px!important; font-size: 70px!important; display: none;' class='icon fa-map-marker'>" + 
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -12px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-		$("#logo1").fadeIn(1000);
-				
-	   $("#typedText").typed({
-		    strings: ["^1000 The world is a big place ^500 " , "People get lost ^500 ", "So, ^400 don't let them. ^500 "],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				 showMap();
-			}, 
-        });
-	clearInterval(timer67); // Stop timer
-}, 5500);
-
-}
-
-function showMap(){
-	var timer55 = setInterval(function () {
-		displayMap();
-		changeChatTopMessage("About Me", "", true);
-		itemDisplay = false;
-		clearInterval(timer55); // Stop timer
-	}, 2000);
-	
-	var timer59 = setInterval(function () {
-		hiddenTileWordsPres();
-		clearInterval(timer59); // Stop timer
-	}, 8500);
-} 
-
-
-function hiddenTileWordsPres() {
-		resetDemoBlock();
-
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-bar-chart'>" + 
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -13px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-		$("#logo1").fadeIn(1000);
-				
-	   $("#typedText").typed({
-            strings: ["^1000 Some of my tiles are hidden..." , "These tiles keep valuable secrets!" , "or.. ^300 umm..", "what you would call...", "Customer Statistics ^2500"],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				 allTileWordsPres();
-			}, 
-        });
-}
-
-
-
-function allTileWordsPres() {
-		resetDemoBlock();
-
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-square-o'>" + 
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -13px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-		$("#logo1").fadeIn(1000);
-				
-	   $("#typedText").typed({
-            strings: ["^1000 I offer many tiles!", "Choose what fits your business best.", "Check them out! " , ""],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				 allTileWordsPresFAST();
-			}, 
-        });
-}
-
-function allTileWordsPresFAST() {
-		resetDemoBlock();
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 35px!important; font-size: 70px!important; display: block;' class='icon fa-square-o'>" + 
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -12px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-	
-	   $("#typedText").typed({
-            strings: ["^500 Chat", "Map", "Ticket", "Feedback", "Appointment", "Hidden", "AnswerBase", "Message", "Tiles unique as your business. ^800 " ],
-            typeSpeed: 45,
-            backDelay: 200,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				endPres();
-			}, 
-        });
-}
-
-function endPres() {
-	var timer51 = setInterval(function () {
-		resetDemoBlock();
-		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 10px; margin: auto; padding-top: 40px!important; font-size: 70px!important; display: none; '>" + 
-		"<img  src = 'https://s3-us-west-2.amazonaws.com/www.sonicchats.com/images/logoDark.png' style = 'display: block; margin: auto; width: 78%; margin-bottom: -15px; padding 0px!important; ' />" +
-				"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; vertical-align: top; '>" +
-								"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>" +
-						"</div>" + 	
-				"</div>";
-				
-		$('#demoBlock').append(child);
-		$("#logo1").fadeIn(1000);
-				
-	   $("#typedText").typed({
-            strings: ["^1000 Now, ^500 it's your turn", "Try me out."],
-            typeSpeed: 60,
-            backDelay: 1000,
-            loop: false,
-            contentType: 'html', // or text
-            // defaults to false for infinite loop
-            loopCount: false,
-            callback: function(){ // Calls when finished
-				goHome();
-			}, 
-        });
-		clearInterval(timer51); // Stop timer
-	}, 3000);
-}
-
-function goHome() {
-	var timerend = setInterval(function () {
-		presStarted = false;
-		resetDemoBlock();
-		itemDisplay = true;
-		displayTileSelection();
-		changeChatTopMessage(siteName, "Support", false, false);
-		clearInterval(timerend); // Stop timer
-	}, 1500);
-}
+// =============================== Automated Introduction (SonicChats.COM Specific) ===============================
+var introMusic;function startIntroducton(){var styleP="<style>"+".typed-cursor{opacity:1;-webkit-animation:blink 0.7s infinite;-moz-animation:blink 0.7s infinite;animation:blink 0.7s infinite;}"+"@keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-webkit-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-moz-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}"+"</style>";$('body').append(styleP);introMusic=new buzz.sound("https://s3-us-west-2.amazonaws.com/www.sonicchats.com/music/promotionMusic.mp3");resetDemoBlock();startPres();}
+function resetDemoBlock(){itemDisplay=false;if($("#chatBox").height()>200){$("#chatContainer").animate({width:'290px'});$("#chatBox").animate({height:'200px'});}
+var demoBlock="<div  id  = 'demoBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: block; '>"+"</div>";$('#chatBox').html("");$('#chatBox').append(demoBlock);if(navigator.userAgent.indexOf('MSIE')>-1){$('input, textarea').placeholder({customClass:'my-placeholder'});}}
+function startPres(){presStarted=true;var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 10px; margin: auto; padding-top: 50px!important; font-size: 70px!important; display: none; '>"+"<img  id = 'logoImage2' src = 'https://s3-us-west-2.amazonaws.com/www.sonicchats.com/images/logoDark.png' style = 'display: block; margin: auto; width: 78%; margin-bottom: -15px; padding 0px!important; ' />"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$('#logoImage2').imgLoad(function(){introMusic.fadeIn(4000).setVolume(75);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:[" ^1000 Hello, ^800 I'm "+"<span style = 'color: #59AFFF!important; margin-bottom: 6px!important; font-weight: 600!important;'>SonicChat</span>","I'm All-In-One ^300","simple to use ^300 ","and extremely versatile. ^300"],typeSpeed:55,backDelay:1000,loop:false,contentType:'html',loopCount:false,callback:function(){displayTilePres();},});});}
+function displayTilePres(){var timer=setInterval(function(){resetDemoBlock();iconColor="#63B8FD";tileColor="#f8f8f8";tileHoverColor="#DFF1FF";var tile="<div id = 'itemBlock' style = 'color: #63B8FD; text-align: center;  margin-bottom: 15px; padding-bottom: 15px; line-height: 100%!important; margin: auto; margin-top: 12px; padding-top: 15px!important; display: block;'"+"<div style = 'width: 100%; margin-top: 0px;   display: inline-block; font-size: 16px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>"+"<div class = 'wedge' id = 'sampTile' onClick = '' style = 'margin: auto; font-size: 31px!important; padding:0px!important; width:49%!important; margin-bottom: 5px!important; height: 72px!important;  display: none;  background-color:"+tileColor+";' >"+"<div style = 'color:"+iconColor+"; text-align: center; line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-comments'><p style = 'font-size: 15px!important; cursor: default; margin: 0px;  line-height: 100%!important; padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat</p></div>"+"</div>"+"</div> ";if(navigator.userAgent.indexOf('MSIE')>-1){$('input, textarea').placeholder({customClass:'my-placeholder'});}
+$('#demoBlock').append(tile);$("#sampTile").fadeIn(700);$("#typedText").typed({strings:["This is a tile. ^500 ","When I'm clicked on, ^200 I open up ^500 "],typeSpeed:55,backDelay:500,loop:false,contentType:'html',loopCount:false,callback:function(){showChatTile();},});clearInterval(timer);},2200);}
+function showChatTile(){var timer22=setInterval(function(){$("#sampTile").css('background-color','#DFF1FF');clearInterval(timer22);},1000);var timer33=setInterval(function(){$("#sampTile").css('background-color','#f8f8f8');clearInterval(timer33);},1400);var timer=setInterval(function(){$('#chatBox').html("");displayBanner("Now chatting with","SonicChat");appendMessageIn("SonicChat","");clearInterval(timer);},2200);var timer3=setInterval(function(){displayNowTyping(true,true);clearInterval(timer3);},3500);var timer7=setInterval(function(){displayNowTyping(false,false);appendMessageIn("SonicChat","  This is a chat tile!");clearInterval(timer7);},6500);var timer8=setInterval(function(){displayNowTyping(true,true);clearInterval(timer8);},8000);var timer4=setInterval(function(){displayNowTyping(false,false);appendMessageOut("Wow, I can talk to my customers when I select this tile?");clearInterval(timer4);},10500);var timer9=setInterval(function(){displayNowTyping(true,true);clearInterval(timer9);},12500);var timer15=setInterval(function(){displayNowTyping(false,false);appendMessageIn("SonicChat"," Yes you can!");clearInterval(timer15);},14000);var timer90=setInterval(function(){displayNowTyping(true,true);clearInterval(timer90);},16000);var timer10=setInterval(function(){displayNowTyping(false,false);appendMessageIn("SonicChat"," Tiles allow you customize your widget with powerful functions. Lets take a closer look!");clearInterval(timer10);},18500);var timer11=setInterval(function(){showTiles();clearInterval(timer11);},21000);}
+function showTiles(){var timer=setInterval(function(){$("#demoBlock").fadeOut(1000);resetDemoBlock();itemDisplay=true;displayTileSelection();changeChatTopMessage("About Me","",true);$("#chatBox").animate({scrollTop:$('#aboutTile').offset().top},13100);clearInterval(timer);},3500);var timer2=setInterval(function(){resetDemoBlock();ticketPres();clearInterval(timer2);},8500);}
+function ticketPres(){var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-th-large'>"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -15px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:["^800 Choose tiles that fit your needs","For example... ^300 ","The ticket tile ^500"],typeSpeed:55,backDelay:500,loop:false,contentType:'html',loopCount:false,callback:function(){showTicketPres();},});}
+function showTicketPres(){var timer66=setInterval(function(){displayTicketSelection();changeChatTopMessage("About Me","",true);itemDisplay=false;displayTicketForm();clearInterval(timer66);},2000);mapPres();}
+function mapPres(){var timer67=setInterval(function(){resetDemoBlock();var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 40px!important; font-size: 70px!important; display: none;' class='icon fa-map-marker'>"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -12px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:["^1000 The world is a big place ^300 ","People get lost ^300 ","So, ^400 don't let them. ^500 "],typeSpeed:55,backDelay:500,loop:false,contentType:'html',loopCount:false,callback:function(){showMap();},});clearInterval(timer67);},6500);}
+function showMap(){var timer55=setInterval(function(){displayMap();changeChatTopMessage("About Me","",true);itemDisplay=false;clearInterval(timer55);},2000);var timer59=setInterval(function(){hiddenTileWordsPres();clearInterval(timer59);},8500);}
+function hiddenTileWordsPres(){resetDemoBlock();var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-bar-chart'>"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -13px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:["^1000 Some of my tiles are hidden... ^300","These tiles keep valuable secrets! ^300","or.. ^300 umm..","what you would call... ^300","Customer Statistics ^2700"],typeSpeed:55,backDelay:500,loop:false,contentType:'html',loopCount:false,callback:function(){allTileWordsPres();},});}
+function allTileWordsPres(){resetDemoBlock();var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: none;' class='icon fa-square-o'>"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -13px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:["^1000 I offer many tiles ^300","Choose what fits you best! ^1000",""],typeSpeed:55,backDelay:500,loop:false,contentType:'html',loopCount:false,callback:function(){allTileWordsPresFAST();},});}
+function allTileWordsPresFAST(){resetDemoBlock();var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 12px; margin: auto; padding-top: 45px!important; font-size: 70px!important; display: block;' class='icon fa-square-o'>"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; margin-top: -13px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#typedText").typed({strings:["^500 Chat","Map","Ticket","Feedback","Appointment","Hidden","AnswerBase","Message","Tiles unique as your business. ^800 "],typeSpeed:42,backDelay:240,loop:false,contentType:'html',loopCount:false,callback:function(){endPres();},});}
+function endPres(){var timer51=setInterval(function(){resetDemoBlock();var child="<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 10px; margin: auto; padding-top: 50px!important; font-size: 70px!important; display: none; '>"+"<img  src = 'https://s3-us-west-2.amazonaws.com/www.sonicchats.com/images/logoDark.png' style = 'display: block; margin: auto; width: 78%; margin-bottom: -15px; padding 0px!important; ' />"+"<div style = 'width: 100%; margin-top: 0px; display: inline-block; font-size: 16px; vertical-align: top; '>"+"<span id = 'typedText' style = 'display: inline-block; padding: 0px!important; text-align: center; vertical-align: top; font-size: 16px; '> </span>"+"</div>"+"</div>";$('#demoBlock').append(child);$("#logo1").fadeIn(1000);$("#typedText").typed({strings:["^1000 Now, ^500 it's your turn","Try me out. ^800"],typeSpeed:60,backDelay:1000,loop:false,contentType:'html',loopCount:false,callback:function(){goHome();},});clearInterval(timer51);},3000);}
+function goHome(){introMusic.fadeOut(4500);var stopMusic=setInterval(function(){introMusic.stop();introMusic=null;},6000);var timerend=setInterval(function(){presStarted=false;resetDemoBlock();itemDisplay=true;displayTileSelection();changeChatTopMessage(siteName,"Support",false,false);clearInterval(timerend);},1500);}
 
 // =============================== 3ED PARTY LIBRARY SUPPORT ===============================
 
@@ -1427,8 +1047,16 @@ var h=f[0],i=f.slice(1),j=[];return a.each(e,function(a,b){var e=d(b,c);if(!e)th
 !function(t){"use strict";var s=function(s,e){this.el=t(s),this.options=t.extend({},t.fn.typed.defaults,e),this.isInput=this.el.is("input"),this.attr=this.options.attr,this.showCursor=this.isInput?!1:this.options.showCursor,this.elContent=this.attr?this.el.attr(this.attr):this.el.text(),this.contentType=this.options.contentType,this.typeSpeed=this.options.typeSpeed,this.startDelay=this.options.startDelay,this.backSpeed=this.options.backSpeed,this.backDelay=this.options.backDelay,this.strings=this.options.strings,this.strPos=0,this.arrayPos=0,this.stopNum=0,this.loop=this.options.loop,this.loopCount=this.options.loopCount,this.curLoop=0,this.stop=!1,this.cursorChar=this.options.cursorChar,this.shuffle=this.options.shuffle,this.sequence=[],this.build()};s.prototype={constructor:s,init:function(){var t=this;t.timeout=setTimeout(function(){for(var s=0;s<t.strings.length;++s)t.sequence[s]=s;t.shuffle&&(t.sequence=t.shuffleArray(t.sequence)),t.typewrite(t.strings[t.sequence[t.arrayPos]],t.strPos)},t.startDelay)},build:function(){this.showCursor===!0&&(this.cursor=t('<span class="typed-cursor">'+this.cursorChar+"</span>"),this.el.after(this.cursor)),this.init()},typewrite:function(t,s){if(this.stop!==!0){var e=Math.round(70*Math.random())+this.typeSpeed,o=this;o.timeout=setTimeout(function(){var e=0,r=t.substr(s);if("^"===r.charAt(0)){var i=1;/^\^\d+/.test(r)&&(r=/\d+/.exec(r)[0],i+=r.length,e=parseInt(r)),t=t.substring(0,s)+t.substring(s+i)}if("html"===o.contentType){var n=t.substr(s).charAt(0);if("<"===n||"&"===n){var a="",h="";for(h="<"===n?">":";";t.substr(s).charAt(0)!==h;)a+=t.substr(s).charAt(0),s++;s++,a+=h}}o.timeout=setTimeout(function(){if(s===t.length){if(o.options.onStringTyped(o.arrayPos),o.arrayPos===o.strings.length-1&&(o.options.callback(),o.curLoop++,o.loop===!1||o.curLoop===o.loopCount))return;o.timeout=setTimeout(function(){o.backspace(t,s)},o.backDelay)}else{0===s&&o.options.preStringTyped(o.arrayPos);var e=t.substr(0,s+1);o.attr?o.el.attr(o.attr,e):o.isInput?o.el.val(e):"html"===o.contentType?o.el.html(e):o.el.text(e),s++,o.typewrite(t,s)}},e)},e)}},backspace:function(t,s){if(this.stop!==!0){var e=Math.round(70*Math.random())+this.backSpeed,o=this;o.timeout=setTimeout(function(){if("html"===o.contentType&&">"===t.substr(s).charAt(0)){for(var e="";"<"!==t.substr(s).charAt(0);)e-=t.substr(s).charAt(0),s--;s--,e+="<"}var r=t.substr(0,s);o.attr?o.el.attr(o.attr,r):o.isInput?o.el.val(r):
 "html"===o.contentType?o.el.html(r):o.el.text(r),s>o.stopNum?(s--,o.backspace(t,s)):s<=o.stopNum&&(o.arrayPos++,o.arrayPos===o.strings.length?(o.arrayPos=0,o.shuffle&&(o.sequence=o.shuffleArray(o.sequence)),o.init()):o.typewrite(o.strings[o.sequence[o.arrayPos]],s))},e)}}, shuffleArray:function(t){var s,e,o=t.length;if(o)for(;--o;)e=Math.floor(Math.random()*(o+1)),s=t[e],t[e]=t[o],t[o]=s;return t},reset:function(){var t=this;clearInterval(t.timeout);var s=this.el.attr("id");this.el.after('<span id="'+s+'"/>'),this.el.remove(),"undefined"!=typeof this.cursor&&this.cursor.remove(),t.options.resetCallback()}},t.fn.typed=function(e){return this.each(function(){var o=t(this),r=o.data("typed"),i="object"==typeof e&&e;r||o.data("typed",r=new s(this,i)),"string"==typeof e&&r[e]()})},t.fn.typed.defaults={strings:["These are the default values...","You know what you should do?","Use your own!","Have a great day!"],typeSpeed:0,startDelay:0,backSpeed:0,shuffle:!1,backDelay:500,loop:!1,loopCount:!1,showCursor:!0,cursorChar:"|",attr:null,contentType:"html",callback:function(){},preStringTyped:function(){},onStringTyped:function(){},resetCallback:function(){}}}(window.jQuery);
 
-// Image Text Library - Check if image is loaded
+// Image Text Library/Function - Check if image is loaded
 (function($){$.fn.imgLoad=function(callback){return this.each(function(){if(callback){if(this.complete||$(this).height()>0){callback.apply(this);}
 else{$(this).on('load',function(){callback.apply(this);});}}});};})(jQuery);
+
+// Sound Library - http://buzz.jaysalvat.com/documentation/sound/
+(function(t,e){"use strict";"undefined"!=typeof module&&module.exports?module.exports=e():"function"==typeof define&&define.amd?define([],e):t.buzz=e()})(this,function(){"use strict";var t=window.AudioContext||window.webkitAudioContext,e={defaults:{autoplay:!1,duration:5e3,formats:[],loop:!1,placeholder:"--",preload:"metadata",volume:80,webAudioApi:!1,document:window.document},types:{mp3:"audio/mpeg",ogg:"audio/ogg",wav:"audio/wav",aac:"audio/aac",m4a:"audio/x-m4a"},sounds:[],el:document.createElement("audio"),getAudioContext:function(){if(void 0===this.audioCtx)try{this.audioCtx=t?new t:null}catch(e){this.audioCtx=null}return this.audioCtx},sound:function(t,n){function i(t){for(var e=[],n=t.length-1,i=0;n>=i;i++)e.push({start:t.start(i),end:t.end(i)});return e}function u(t){return t.split(".").pop()}n=n||{};var s=n.document||e.defaults.document,r=0,o=[],a={},h=e.isSupported();if(this.load=function(){return h?(this.sound.load(),this):this},this.play=function(){return h?(this.sound.play(),this):this},this.togglePlay=function(){return h?(this.sound.paused?this.sound.play():this.sound.pause(),this):this},this.pause=function(){return h?(this.sound.pause(),this):this},this.isPaused=function(){return h?this.sound.paused:null},this.stop=function(){return h?(this.setTime(0),this.sound.pause(),this):this},this.isEnded=function(){return h?this.sound.ended:null},this.loop=function(){return h?(this.sound.loop="loop",this.bind("ended.buzzloop",function(){this.currentTime=0,this.play()}),this):this},this.unloop=function(){return h?(this.sound.removeAttribute("loop"),this.unbind("ended.buzzloop"),this):this},this.mute=function(){return h?(this.sound.muted=!0,this):this},this.unmute=function(){return h?(this.sound.muted=!1,this):this},this.toggleMute=function(){return h?(this.sound.muted=!this.sound.muted,this):this},this.isMuted=function(){return h?this.sound.muted:null},
+this.setVolume=function(t){return h?(0>t&&(t=0),t>100&&(t=100),this.volume=t,this.sound.volume=t/100,this):this},this.getVolume=function(){return h?this.volume:this},this.increaseVolume=function(t){return this.setVolume(this.volume+(t||1))},this.decreaseVolume=function(t){return this.setVolume(this.volume-(t||1))},this.setTime=function(t){if(!h)return this;var e=!0;return this.whenReady(function(){e===!0&&(e=!1,this.sound.currentTime=t)}),this},this.getTime=function(){if(!h)return null;var t=Math.round(100*this.sound.currentTime)/100;return isNaN(t)?e.defaults.placeholder:t},this.setPercent=function(t){return h?this.setTime(e.fromPercent(t,this.sound.duration)):this},this.getPercent=function(){if(!h)return null;var t=Math.round(e.toPercent(this.sound.currentTime,this.sound.duration));return isNaN(t)?e.defaults.placeholder:t},this.setSpeed=function(t){return h?(this.sound.playbackRate=t,this):this},this.getSpeed=function(){return h?this.sound.playbackRate:null},this.getDuration=function(){if(!h)return null;var t=Math.round(100*this.sound.duration)/100;return isNaN(t)?e.defaults.placeholder:t},this.getPlayed=function(){return h?i(this.sound.played):null},this.getBuffered=function(){return h?i(this.sound.buffered):null},this.getSeekable=function(){return h?i(this.sound.seekable):null},this.getErrorCode=function(){return h&&this.sound.error?this.sound.error.code:0},this.getErrorMessage=function(){if(!h)return null;switch(this.getErrorCode()){case 1:return"MEDIA_ERR_ABORTED";case 2:return"MEDIA_ERR_NETWORK";case 3:return"MEDIA_ERR_DECODE";case 4:return"MEDIA_ERR_SRC_NOT_SUPPORTED";default:return null}},this.getStateCode=function(){return h?this.sound.readyState:null},this.getStateMessage=function(){if(!h)return null;switch(this.getStateCode()){case 0:return"HAVE_NOTHING";case 1:return"HAVE_METADATA";case 2:return"HAVE_CURRENT_DATA";case 3:return"HAVE_FUTURE_DATA";case 4:return"HAVE_ENOUGH_DATA";
+default:return null}},this.getNetworkStateCode=function(){return h?this.sound.networkState:null},this.getNetworkStateMessage=function(){if(!h)return null;switch(this.getNetworkStateCode()){case 0:return"NETWORK_EMPTY";case 1:return"NETWORK_IDLE";case 2:return"NETWORK_LOADING";case 3:return"NETWORK_NO_SOURCE";default:return null}},this.set=function(t,e){return h?(this.sound[t]=e,this):this},this.get=function(t){return h?t?this.sound[t]:this.sound:null},this.bind=function(t,e){if(!h)return this;t=t.split(" ");for(var n=this,i=function(t){e.call(n,t)},u=0;t.length>u;u++){var s=t[u],r=s;s=r.split(".")[0],o.push({idx:r,func:i}),this.sound.addEventListener(s,i,!0)}return this},this.unbind=function(t){if(!h)return this;t=t.split(" ");for(var e=0;t.length>e;e++)for(var n=t[e],i=n.split(".")[0],u=0;o.length>u;u++){var s=o[u].idx.split(".");(o[u].idx===n||s[1]&&s[1]===n.replace(".",""))&&(this.sound.removeEventListener(i,o[u].func,!0),o.splice(u,1))}return this},this.bindOnce=function(t,e){if(!h)return this;var n=this;return a[r++]=!1,this.bind(t+"."+r,function(){a[r]||(a[r]=!0,e.call(n)),n.unbind(t+"."+r)}),this},this.trigger=function(t,e){if(!h)return this;t=t.split(" ");for(var n=0;t.length>n;n++)for(var i=t[n],u=0;o.length>u;u++){var r=o[u].idx.split(".");if(o[u].idx===i||r[0]&&r[0]===i.replace(".","")){var a=s.createEvent("HTMLEvents");a.initEvent(r[0],!1,!0),a.originalEvent=e,this.sound.dispatchEvent(a)}}return this},this.fadeTo=function(t,n,i){function u(){setTimeout(function(){t>s&&t>o.volume?(o.setVolume(o.volume+=1),u()):s>t&&o.volume>t?(o.setVolume(o.volume-=1),u()):i instanceof Function&&i.apply(o)},r)}if(!h)return this;n instanceof Function?(i=n,n=e.defaults.duration):n=n||e.defaults.duration;var s=this.volume,r=n/Math.abs(s-t),o=this;return this.play(),this.whenReady(function(){u()}),this},this.fadeIn=function(t,e){return h?this.setVolume(0).fadeTo(100,t,e):this},this.fadeOut=function(t,e){
+return h?this.fadeTo(0,t,e):this},this.fadeWith=function(t,e){return h?(this.fadeOut(e,function(){this.stop()}),t.play().fadeIn(e),this):this},this.whenReady=function(t){if(!h)return null;var e=this;0===this.sound.readyState?this.bind("canplay.buzzwhenready",function(){t.call(e)}):t.call(e)},this.addSource=function(t){var n=this,i=s.createElement("source");return i.src=t,e.types[u(t)]&&(i.type=e.types[u(t)]),this.sound.appendChild(i),i.addEventListener("error",function(t){n.trigger("sourceerror",t)}),i},h&&t){for(var d in e.defaults)e.defaults.hasOwnProperty(d)&&void 0===n[d]&&(n[d]=e.defaults[d]);if(this.sound=s.createElement("audio"),n.webAudioApi){var l=e.getAudioContext();l&&(this.source=l.createMediaElementSource(this.sound),this.source.connect(l.destination))}if(t instanceof Array)for(var c in t)t.hasOwnProperty(c)&&this.addSource(t[c]);else if(n.formats.length)for(var f in n.formats)n.formats.hasOwnProperty(f)&&this.addSource(t+"."+n.formats[f]);else this.addSource(t);n.loop&&this.loop(),n.autoplay&&(this.sound.autoplay="autoplay"),this.sound.preload=n.preload===!0?"auto":n.preload===!1?"none":n.preload,this.setVolume(n.volume),e.sounds.push(this)}},group:function(t){function e(){for(var e=n(null,arguments),i=e.shift(),u=0;t.length>u;u++)t[u][i].apply(t[u],e)}function n(t,e){return t instanceof Array?t:Array.prototype.slice.call(e)}t=n(t,arguments),this.getSounds=function(){return t},this.add=function(e){e=n(e,arguments);for(var i=0;e.length>i;i++)t.push(e[i])},this.remove=function(e){e=n(e,arguments);for(var i=0;e.length>i;i++)for(var u=0;t.length>u;u++)if(t[u]===e[i]){t.splice(u,1);break}},this.load=function(){return e("load"),this},this.play=function(){return e("play"),this},this.togglePlay=function(){return e("togglePlay"),this},this.pause=function(t){return e("pause",t),this},this.stop=function(){return e("stop"),this},this.mute=function(){return e("mute"),this},this.unmute=function(){
+return e("unmute"),this},this.toggleMute=function(){return e("toggleMute"),this},this.setVolume=function(t){return e("setVolume",t),this},this.increaseVolume=function(t){return e("increaseVolume",t),this},this.decreaseVolume=function(t){return e("decreaseVolume",t),this},this.loop=function(){return e("loop"),this},this.unloop=function(){return e("unloop"),this},this.setSpeed=function(t){return e("setSpeed",t),this},this.setTime=function(t){return e("setTime",t),this},this.set=function(t,n){return e("set",t,n),this},this.bind=function(t,n){return e("bind",t,n),this},this.unbind=function(t){return e("unbind",t),this},this.bindOnce=function(t,n){return e("bindOnce",t,n),this},this.trigger=function(t){return e("trigger",t),this},this.fade=function(t,n,i,u){return e("fade",t,n,i,u),this},this.fadeIn=function(t,n){return e("fadeIn",t,n),this},this.fadeOut=function(t,n){return e("fadeOut",t,n),this}},all:function(){return new e.group(e.sounds)},isSupported:function(){return!!e.el.canPlayType},isOGGSupported:function(){return!!e.el.canPlayType&&e.el.canPlayType('audio/ogg; codecs="vorbis"')},isWAVSupported:function(){return!!e.el.canPlayType&&e.el.canPlayType('audio/wav; codecs="1"')},isMP3Supported:function(){return!!e.el.canPlayType&&e.el.canPlayType("audio/mpeg;")},isAACSupported:function(){return!!e.el.canPlayType&&(e.el.canPlayType("audio/x-m4a;")||e.el.canPlayType("audio/aac;"))},toTimer:function(t,e){var n,i,u;return n=Math.floor(t/3600),n=isNaN(n)?"--":n>=10?n:"0"+n,i=e?Math.floor(t/60%60):Math.floor(t/60),i=isNaN(i)?"--":i>=10?i:"0"+i,u=Math.floor(t%60),u=isNaN(u)?"--":u>=10?u:"0"+u,e?n+":"+i+":"+u:i+":"+u},fromTimer:function(t){var e=(""+t).split(":");return e&&3===e.length&&(t=3600*parseInt(e[0],10)+60*parseInt(e[1],10)+parseInt(e[2],10)),e&&2===e.length&&(t=60*parseInt(e[0],10)+parseInt(e[1],10)),t},toPercent:function(t,e,n){var i=Math.pow(10,n||0);return Math.round(100*t/e*i)/i},fromPercent:function(t,e,n){var i=Math.pow(10,n||0);return Math.round(e/100*t*i)/i}};return e});
+
 
 //************ SonicChat 2015 - End of JS File. STOP ************
