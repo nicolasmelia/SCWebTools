@@ -1,6 +1,10 @@
 // =============================== Automated Introduction ===============================
 var introMusic;
-function introducton() {
+function startIntroducton() {
+	
+	$("#messageInput").prop('disabled', true);
+	$("#messageInput").attr("placeholder", "My Introduction");
+	
 	var styleP = "<style>" +
 					".typed-cursor{opacity:1;-webkit-animation:blink 0.7s infinite;-moz-animation:blink 0.7s infinite;animation:blink 0.7s infinite;}" +
 					 "@keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-webkit-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}@-moz-keyframes blink{0%{opacity:1;} 50%{opacity:0;} 100%{opacity:1;}}" + 
@@ -169,7 +173,7 @@ function showChatTile() {
 	
 	var timer10 = setInterval(function () {
 		displayNowTyping(false, false);
-		appendMessageIn("SonicChat", " Tiles allow you customize your widget with powerful functions. Lets take a closer look!");
+		appendMessageIn("SonicChat", " Tiles allow you to customize your widget with powerful functions. Lets take a closer look!");
 		clearInterval(timer10); // Stop timer
 	}, 18500);
 	
@@ -189,7 +193,7 @@ function showTiles() {
 	displayTileSelection();
 	changeChatTopMessage("About Me", "", true);
 	
-	// Scroll to botttom
+	// Scroll to bottom
 	$("#chatBox").animate({
 	scrollTop: $('#aboutTile').offset().top
 	}, 13100);
@@ -233,12 +237,14 @@ function showTicketPres() {
 		changeChatTopMessage("About Me", "", true);
 		itemDisplay = false;
 		displayTicketForm();
+		
+		$("#messageInput").prop('disabled', true);
+		$("#messageInput").attr("placeholder", "My Introduction");
+		
 		clearInterval(timer66); // Stop timer
 	}, 2000);
 	mapPres();
 }
-
-
 
 function mapPres() {
 var timer67 = setInterval(function () {
@@ -273,6 +279,10 @@ var timer67 = setInterval(function () {
 function showMap(){
 	var timer55 = setInterval(function () {
 		displayMap();
+		
+		$("#messageInput").prop('disabled', true);
+		$("#messageInput").attr("placeholder", "My Introduction");
+		
 		changeChatTopMessage("About Me", "", true);
 		itemDisplay = false;
 		clearInterval(timer55); // Stop timer
@@ -390,6 +400,10 @@ function endPres() {
 }
 
 function goHome() {
+	
+	$("#messageInput").prop('disabled', true);
+	$("#messageInput").attr("placeholder", "Help and Support");
+	
 	// Stop music
 	introMusic.fadeOut(4500);
 	
