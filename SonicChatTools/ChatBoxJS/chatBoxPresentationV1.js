@@ -1,7 +1,6 @@
 // =============================== Automated Introduction ===============================
 var introMusic;
 function startIntroducton() {
-	
 	$("#messageInput").prop('disabled', true);
 	$("#messageInput").attr("placeholder", "My Introduction");
 	
@@ -28,6 +27,7 @@ function resetDemoBlock() {
 	var demoBlock = "<div  id  = 'demoBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: block; '>" + "</div>";
 			$('#chatBox').html(""); // Clear the chat box first
 			$('#chatBox').append(demoBlock);
+
 			// IF IE: place-holder support
 			if (navigator.userAgent.indexOf('MSIE') > -1){
 				$('input, textarea').placeholder({customClass:'my-placeholder'});
@@ -35,6 +35,7 @@ function resetDemoBlock() {
 }
 
 function startPres() {
+		displayLoading("#demoBlock", true);
 		// displayLoading("#chatBox", true);
 		presStarted = true;
 		var child = "<div id = 'logo1' style = 'color: #63B8FD; text-align: center;  line-height: 100%!important; margin-top: 10px; margin: auto; padding-top: 50px!important; font-size: 70px!important; display: none; '>" + 
@@ -48,6 +49,8 @@ function startPres() {
 	
 				
 	$('#logoImage2').imgLoad(function(){
+		displayLoading("#demoBlock", false);
+
 		// Start Music
 		introMusic.fadeIn(4000).setVolume(75);
 
@@ -83,7 +86,7 @@ function displayTilePres() {
 							"</div>" + 	
 					"</div>" +
 					
-					"<div class = 'wedge' id = 'sampTile' onClick = '' style = 'margin: auto; font-size: 31px!important; padding:0px!important; width:49%!important; margin-bottom: 5px!important; height: 72px!important;  display: none;  background-color:" + tileColor +";' >" +
+					"<div class = 'wedge2' id = 'sampTile' onClick = '' style = 'margin: auto; font-size: 31px!important; padding:0px!important; width:49%!important; margin-bottom: 5px!important; height: 72px!important;  display: none;  background-color:" + tileColor +";' >" +
 						"<div style = 'color:" + iconColor +"; text-align: center; line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-comments'><p style = 'font-size: 15px!important; cursor: default; margin: 0px;  line-height: 100%!important; padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat</p></div>" +
 						"</div>" +	
 					"</div> ";
@@ -410,6 +413,7 @@ function goHome() {
 	var stopMusic = setInterval(function () {
 	introMusic.stop();
 	introMusic = null;
+	clearInterval(stopMusic); // Stop timer
 	}, 6000);
 	
 	var timerend = setInterval(function () {
