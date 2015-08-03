@@ -13,7 +13,7 @@
 */
  
 // ======= Client Site Information =======
-var siteID = "1";
+var siteID = "2";
 var siteName = "SonicChat";
 
 // ======= Widget Controls =======
@@ -200,7 +200,7 @@ function testActiveHost() {
 	if (!away) {
 		// Function is dedicated to see if services is in after hours and/or there are even an active host, 
 			$.ajax({
-				  url: "http://localhost:8080/SonicChatV1/DataAccess/testHostActive/" + siteID,
+				  url: "http://sonicchat.elasticbeanstalk.com/DataAccess/testHostActive/" + siteID,
 				  dataType: 'jsonp',
 				  crossDomain:true,
 				  jsonpCallback: "jsonCallback",
@@ -307,7 +307,7 @@ function displayTileSelection() {
 	iconColor = "#63B8FD";
 	tileColor = "#f8f8f8";
 	tileHoverColor = "#DFF1FF";
-	var awayAppend =  "<div  id  = 'itemBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important;  display: none; '>" + 
+	var awayAppend =  "<div  id  = 'itemBlock' style = 'width: 90%!important;  margin: auto!important;  padding-top: 3px!important; padding-bottom: 3px!important; margin-bottom: 3px!important; display: none; '>" + 
 					
 							"<div class = 'wedge' onClick = 'itemSelected(1)' style = 'float:left; font-size: 31px!important; padding:0px!important; width:49%!important; margin-bottom: 5px!important; height: 72px!important; vertical-align: top;  display: inline-block!important; background-color:" + tileColor +";' >" +
 							"<div style = 'color:" + iconColor +"; text-align: center;   line-height: 100%!important;  margin: auto; padding-top: 13px!important; font-size: 31px!important;' class='icon fa-comments'><p style = 'font-size: 15px!important; cursor: default; margin: 0px;  line-height: 100%!important;  padding: 0px; color: #716F6F!important;  margin-top: 6px!important; '>Live Chat</p></div>" +
@@ -429,9 +429,9 @@ function displayMessageForm() {
 function sendAfterHourMessage() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
 	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val()};
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val(), siteID:siteID};
 			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveAwayMessage",
+				url: "http://localhost:8080/SonicChatV1/dataAccess/recieveAwayMessage",
 				dataType: 'jsonp',
 				crossDomain:true,
 				jsonpCallback: "jsonCallbackAwayMessage",
@@ -521,9 +521,9 @@ function displayTicketSelection() {
 
 function sendTicket() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val()};
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val(), siteID:siteID};
 			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/DataAccess/recieveTicket/",
+				url: "http://localhost:8080/SonicChatV1/DataAccess/recieveTicket/",
 				dataType: 'jsonp',
 				crossDomain:true,
 				jsonpCallback: "jsonCallbackTicket",
@@ -659,7 +659,7 @@ function displayAnswerBase() {
 function requestAnswer(question) {
 	// Function is dedicated to see if services is in after hours and/or there are even an active host, 
 		$.ajax({
-			url: "http://sonicchat.elasticbeanstalk.com/DataAccess/quickSearchWidget/" + siteID + ":" + question,
+			url: "http://localhost:8080/SonicChatV1/DataAccess/quickSearchWidget/" + siteID + ":" + question,
 			dataType: 'jsonp',
 			crossDomain:true,
 			jsonpCallback: "jsonCallbackAnswers",
@@ -760,12 +760,12 @@ function displayFeedBackForm() {
 function sendFeedBack() {
 	var $rateYo = $("#rateYo").rateYo();
     var rating = $rateYo.rateYo("rating");
-	
+	-
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
 	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:"FEEDBACK", contact:$("#ChatContactInput").val(), message: "Rating: " + rating + " Feedback: " + $("#chatMessage").val()};
+	 var data={name:"FEEDBACK", contact:$("#ChatContactInput").val(), message:$("#chatMessage").val(), rating: rating, siteID:siteID};
 			$.ajax({
-				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveFeedback",
+				url: "http://localhost:8080/SonicChatV1/dataAccess/recieveFeedback",
 				dataType: 'jsonp',
 				crossDomain:true,
 				jsonpCallback: "jsonCallbackFeedback",

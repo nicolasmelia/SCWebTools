@@ -429,7 +429,7 @@ function displayMessageForm() {
 function sendAfterHourMessage() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
 	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val()};
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), message:$("#chatMessage").val(), siteID:siteID};
 			$.ajax({
 				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveAwayMessage",
 				dataType: 'jsonp',
@@ -521,7 +521,7 @@ function displayTicketSelection() {
 
 function sendTicket() {
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
-	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val()};
+	 var data={name:$("#ChatNameInput").val(), contact:$("#ChatContactInput").val(), issue:$("#chatMessage").val(), product:$("#productListD").val(), siteID:siteID};
 			$.ajax({
 				url: "http://sonicchat.elasticbeanstalk.com/DataAccess/recieveTicket/",
 				dataType: 'jsonp',
@@ -763,7 +763,7 @@ function sendFeedBack() {
 	
 	if ($("#ChatContactInput").val().indexOf("@") != -1 && $("#ChatContactInput").val() != ""){
 	displayLoading("#chatMessageBlock", true); // kill loading animation
-	 var data={name:"FEEDBACK", contact:$("#ChatContactInput").val(), message: "Rating: " + rating + " Feedback: " + $("#chatMessage").val()};
+	 	var data={name:"FEEDBACK", contact:$("#ChatContactInput").val(), message:$("#chatMessage").val(), rating: rating, siteID:siteID};
 			$.ajax({
 				url: "http://sonicchat.elasticbeanstalk.com/dataAccess/recieveFeedback",
 				dataType: 'jsonp',
