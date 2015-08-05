@@ -917,10 +917,11 @@ function sendAndRecieve(){
 				parseHistory(messageFromServer);
 			} else if(message[0] == "!TYPING!") {
 				displayNowTyping(true);
+			} else if(message[0] == "!END!") {
+				appendMessageIn("", " This chat has ended. Thank you.");
 			} else {
 				appendMessageIn(message[0], message[1]);
 			}
-
 		} else {
 			// Get client ID from message. This is a new socket connection
 			parseNewConnectionInformation(messageFromServer);
